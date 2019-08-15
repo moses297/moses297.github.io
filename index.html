@@ -1,28 +1,4 @@
 <style>
-.grid-container {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 63% 63% 34%;
-  grid-template-areas: "Facebook Spotify" "Apple-Music Deezer" "Amazon-Music YouTube";
-}
-
-.Facebook { grid-area: Facebook; }
-
-.Spotify {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  grid-template-areas: ". . ." ". . .";
-  grid-area: Spotify;
-}
-
-.Apple-Music { grid-area: Apple-Music; }
-
-.Deezer { grid-area: Deezer; }
-
-.Amazon-Music { grid-area: Amazon-Music; }
-
-.YouTube { grid-area: YouTube; }
   .flex-container {
   display: flex;
   flex-wrap: wrap;
@@ -30,11 +6,10 @@
 }
 </style>
 <div class="flex-container">
-  <div class="Facebook"><a href="http://www.facebook.com"><img src="./lface.png" style="height:200px"></a>
-</div>
+  <div class="Facebook"><a href="http://www.facebook.com"><img src="./lface.png" style="height:200px"></a></div>
   <div class="Spotify"><a href="http://www.facebook.com"><img src="./listen-on-spotify.png" style="height:200px"></div>
-  <div class="Apple-Music"><a href="http://www.facebook.com"><img src="./listen-on-apple-music-badge.png" style="height:200px"></div>
-  <div class="Deezer"><a href="http://www.facebook.com"><img src="./deezer.jpg" style="height:200px"></div>
+  <div class="Apple-Music"><a href="http://www.facebook.com"><img src="./listen-on-spotify.png" style="height:200px"></div>
+  <div class="Deezer"><a href="http://www.facebook.com"><img src="./listen-on-spotify.png" style="height:200px"></div>
   <div class="Amazon-Music"><a href="http://www.facebook.com"><img src="./amazon-Music-Badge.png" style="height:200px"></div>
   <div class="YouTube"><a href="http://www.facebook.com"><img src="./Watch-Listen-On-Youtube.png" style="height:200px"></div>
 </div>
