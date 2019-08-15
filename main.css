@@ -1,0 +1,7 @@
+P { text-align: center }
+
+P.blocktext {
+    margin-left: auto;
+    margin-right: auto;
+    width: 8em
+}
