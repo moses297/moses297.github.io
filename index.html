@@ -1,3 +1,23 @@
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-areas: "Facebook Spotify . ." "Apple-Music Deezer . ." "Amazon-Music YouTube . .";
+}
+
+.Facebook { grid-area: Facebook; }
+
+.Spotify { grid-area: Spotify; }
+
+.Apple-Music { grid-area: Apple-Music; }
+
+.Deezer { grid-area: Deezer; }
+
+.Amazon-Music { grid-area: Amazon-Music; }
+
+.YouTube { grid-area: YouTube; }
+</style>
 <div class="grid-container">
   <div class="Facebook">This is a test</div>
   <div class="Spotify">This is a test 1</div>
