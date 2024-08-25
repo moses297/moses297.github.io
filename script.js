@@ -56,7 +56,7 @@ function initializeAudio() {
 
         audioContext = new AudioContext();
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
+        analyser.fftSize = 4096;  // Increase fftSize for better frequency resolution
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Float32Array(bufferLength);
 
@@ -119,8 +119,15 @@ function detectPitchFromDataArray(dataArray, sampleRate) {
     }
 
     let fundamentalFreq = sampleRate / bestOffset;
+
+    // Adjust the frequency range if necessary
+    if (fundamentalFreq < 20 || fundamentalFreq > 2000) {
+        return null;
+    }
+
     return getNoteName(fundamentalFreq);
 }
+
 
 // Function to listen for a note from the microphone
 function listenForNote() {
