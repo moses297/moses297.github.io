@@ -88,7 +88,7 @@ function detectPitchFromDataArray(dataArray, sampleRate) {
     rms = Math.sqrt(rms / size);
 
     // Ignore low levels of signal
-    if (rms < 0.5) {
+    if (rms < 0.00001) {
         return null;
     }
 
@@ -114,7 +114,7 @@ function detectPitchFromDataArray(dataArray, sampleRate) {
         lastCorrelation = correlation;
     }
 
-    if (bestOffset <= 0 || bestCorrelation < 0.55) {
+    if (bestOffset <= 0 || bestCorrelation < 0.00001) {
         return null;
     }
 
