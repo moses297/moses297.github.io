@@ -45,6 +45,8 @@ function standardizeNoteName(note) {
 let audioContext = null;
 let analyser = null;
 let microphone = null;
+let bufferLength;
+let dataArray;
 
 // Function to initialize audio processing
 function initializeAudio() {
@@ -56,9 +58,9 @@ function initializeAudio() {
 
         audioContext = new AudioContext();
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 4096;  // Increase fftSize for better frequency resolution
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Float32Array(bufferLength);
+        analyser.fftSize = 2048;  // Higher fftSize for better frequency resolution
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Float32Array(bufferLength);
 
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then((stream) => {
@@ -75,50 +77,23 @@ function initializeAudio() {
 
 // Function to detect pitch from audio data
 function detectPitchFromDataArray(dataArray, sampleRate) {
-    let size = dataArray.length;
-    let maxShift = Math.floor(size / 2);
-    let bestOffset = -1;
-    let bestCorrelation = 0;
-    let rms = 0;
+    let nyquist = sampleRate / 2;
+    let maxMagnitude = -Infinity;
+    let maxIndex = -1;
 
-    // Calculate RMS to check if the signal is strong enough
-    for (let i = 0; i < size; i++) {
-        rms += dataArray[i] * dataArray[i];
-    }
-    rms = Math.sqrt(rms / size);
-
-    // Ignore low levels of signal
-    if (rms < 0.00001) {
-        return null;
-    }
-
-    let lastCorrelation = 1;
-    for (let offset = 1; offset < maxShift; offset++) {  // Start offset from 1 to avoid division by zero
-        let correlation = 0;
-
-        for (let i = 0; i < maxShift; i++) {
-            correlation += Math.abs((dataArray[i]) - (dataArray[i + offset]));
+    // Find peak in frequency domain
+    for (let i = 0; i < bufferLength; i++) {
+        if (dataArray[i] > maxMagnitude) {
+            maxMagnitude = dataArray[i];
+            maxIndex = i;
         }
-
-        correlation = 1 - (correlation / maxShift);
-
-        if (correlation > bestCorrelation) {
-            bestCorrelation = correlation;
-            bestOffset = offset;
-        }
-
-        if (correlation < 0.9 * lastCorrelation) {
-            break;
-        }
-
-        lastCorrelation = correlation;
     }
 
-    if (bestOffset <= 0 || bestCorrelation < 0.00001) {
-        return null;
+    if (maxIndex === -1) {
+        return null; // No peak found
     }
 
-    let fundamentalFreq = sampleRate / bestOffset;
+    let fundamentalFreq = (maxIndex * nyquist) / (bufferLength / 2);
 
     // Adjust the frequency range if necessary
     if (fundamentalFreq < 20 || fundamentalFreq > 2000) {
@@ -127,6 +102,7 @@ function detectPitchFromDataArray(dataArray, sampleRate) {
 
     return getNoteName(fundamentalFreq);
 }
+
 
 
 // Function to listen for a note from the microphone
@@ -264,5 +240,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // Assuming there's a start button to trigger the chord progression
     document.getElementById("startButton").addEventListener("click", () => {
         playChords(chords);
+    });
+});
+
+function analyzeAudio() {
+    analyser.getFloatFrequencyData(dataArray);
+    let pitch = detectPitchFromDataArray(dataArray, audioContext.sampleRate);
+    
+    if (pitch) {
+        console.log("Detected pitch:", pitch);
+        // Update UI or perform other actions based on detected pitch
+    }
+
+    requestAnimationFrame(analyzeAudio);
+}
+
+// Start the audio processing
+document.getElementById('startButton').addEventListener('click', () => {
+    initializeAudio().then(() => {
+        analyzeAudio();
+    }).catch(err => {
+        console.error('Initialization error:', err);
     });
 });
