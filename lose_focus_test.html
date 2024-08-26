@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Sound on Focus Loss</title>
+</head>
+<body>
+    <button id="playButton">Press here</button>
+    <h1>Switch to another tab to hear a sound!</h1>
+    <audio id="mySound" src="notification.mp3"></audio>
+    <script>
+        document.getElementById('playButton').addEventListener('click', function() {
+            // Enable sound playback
+            document.getElementById('mySound').play().then(() => {
+                document.getElementById('mySound').pause();
+                document.getElementById('mySound').currentTime = 0;
+                alert('Sound is enabled! Now switch to another tab.');
+            }).catch(error => {
+                console.error('Error playing sound:', error);
+            });
+
+            // Listen for visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    document.getElementById('mySound').play();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
