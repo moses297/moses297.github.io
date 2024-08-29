@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label, input, button {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        #status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Connection Setup</h1>
+    
+    <label for="cookieInput">Cookie String:</label>
+    <input type="text" id="cookieInput" placeholder="myCookie=myValue; path=/; SameSite=None; Secure">
+
+    <label for="wsUrlInput">WebSocket URL:</label>
+    <input type="text" id="wsUrlInput" placeholder="wss://example.com/socket">
+
+    <button id="connectButton">Start WebSocket Connection</button>
+    
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('connectButton').addEventListener('click', function() {
+            // Get user inputs
+            const cookieString = document.getElementById('cookieInput').value;
+            const wsUrl = document.getElementById('wsUrlInput').value;
+            const statusDiv = document.getElementById('status');
+
+            // Set the cookie
+            document.cookie = cookieString;
+            statusDiv.innerHTML = `Cookie set: ${document.cookie}`;
+
+            // Create a WebSocket connection
+            let ws;
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function(event) {
+                    statusDiv.innerHTML += "<br>WebSocket connection established.";
+                };
+
+                ws.onmessage = function(event) {
+                    statusDiv.innerHTML += `<br>Received: ${event.data}`;
+                };
+
+                ws.onclose = function(event) {
+                    statusDiv.innerHTML += "<br>WebSocket connection closed.";
+                };
+
+                ws.onerror = function(error) {
+                    statusDiv.innerHTML += `<br>WebSocket error: ${error.message}`;
+                };
+            } catch (error) {
+                statusDiv.innerHTML += `<br>Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
