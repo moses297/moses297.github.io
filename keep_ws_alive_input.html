@@ -21,13 +21,21 @@
         #status {
             margin-top: 20px;
         }
+        #cookieScript {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-family: monospace;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>WebSocket Connection Setup</h1>
     
     <label for="cookieInput">Cookie String:</label>
-    <input type="text" id="cookieInput" placeholder="myCookie=myValue; path=/; SameSite=None; Secure">
+    <input type="text" id="cookieInput" placeholder="key1=value1; key2=value2;">
 
     <label for="wsUrlInput">WebSocket URL:</label>
     <input type="text" id="wsUrlInput" placeholder="wss://example.com/socket">
@@ -35,17 +43,45 @@
     <button id="connectButton">Start WebSocket Connection</button>
     
     <div id="status"></div>
+    <div id="cookieScript"></div>
 
     <script>
+        // Function to generate JavaScript code for setting cookies
+        function generateCookieScript(cookieString) {
+            // Split the string into individual cookie pairs
+            const pairs = cookieString.split(';').map(pair => pair.trim()).filter(pair => pair.length > 0);
+
+            // Generate JavaScript code for setting cookies
+            let script = '';
+            pairs.forEach(pair => {
+                const [key, value] = pair.split('=').map(part => part.trim());
+                if (key && value) {
+                    script += `document.cookie = "${key}=${value}";\n`;
+                }
+            });
+
+            return script;
+        }
+
+        // Function to display the generated script on the page
+        function displayCookieScript(script) {
+            const scriptDiv = document.getElementById('cookieScript');
+            scriptDiv.textContent = `// JavaScript code for setting cookies\n${script}`;
+        }
+
+        document.getElementById('cookieInput').addEventListener('input', function() {
+            // Get the cookie string from the input field
+            const cookieString = document.getElementById('cookieInput').value;
+
+            // Generate and display the cookie-setting script
+            const cookieScript = generateCookieScript(cookieString);
+            displayCookieScript(cookieScript);
+        });
+
         document.getElementById('connectButton').addEventListener('click', function() {
             // Get user inputs
-            const cookieString = document.getElementById('cookieInput').value;
             const wsUrl = document.getElementById('wsUrlInput').value;
             const statusDiv = document.getElementById('status');
-
-            // Set the cookie
-            document.cookie = cookieString;
-            statusDiv.innerHTML = `Cookie set: ${document.cookie}`;
 
             // Create a WebSocket connection
             let ws;
@@ -58,6 +94,10 @@
 
                 ws.onmessage = function(event) {
                     statusDiv.innerHTML += `<br>Received: ${event.data}`;
+
+                    // Assuming the message contains the cookie string to be processed
+                    const receivedCookieScript = generateCookieScript(event.data);
+                    displayCookieScript(receivedCookieScript);
                 };
 
                 ws.onclose = function(event) {
