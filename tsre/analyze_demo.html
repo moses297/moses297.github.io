@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Findings Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold mb-2">Security Findings Dashboard</h1>
+            <p class="text-gray-400">Upload your Semgrep analysis results to visualize security findings</p>
+        </div>
+
+        <!-- File Upload -->
+        <div class="glass-card rounded-lg p-6 mb-8">
+            <div class="flex items-center justify-center w-full">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer hover:border-gray-400">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="mb-2 text-sm text-gray-400">Click to upload JSON or drag and drop</p>
+                    </div>
+                    <input id="file-upload" type="file" class="hidden" accept=".json" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Total Issues Card -->
+            <div class="glass-card rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-2">Total Issues</h3>
+                <p id="total-issues" class="text-4xl font-bold">-</p>
+            </div>
+            
+            <!-- High Priority Issues Card -->
+            <div class="glass-card rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-2">High Priority (≥7)</h3>
+                <p id="high-priority" class="text-4xl font-bold text-red-500">-</p>
+            </div>
+            
+            <!-- Average Rating Card -->
+            <div class="glass-card rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-2">Average Rating</h3>
+                <p id="avg-rating" class="text-4xl font-bold text-blue-500">-</p>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Rating Distribution -->
+            <div class="glass-card rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Rating Distribution</h3>
+                <canvas id="rating-chart" height="200"></canvas>
+            </div>
+            
+            <!-- Priority Distribution -->
+            <div class="glass-card rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Priority Distribution</h3>
+                <canvas id="priority-pie" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Findings Table -->
+        <div class="glass-card rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">Detailed Findings</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Rating</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Rule ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Code</th>
+                        </tr>
+                    </thead>
+                    <tbody id="findings-table" class="divide-y divide-gray-700">
+                        <!-- Findings will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ratingChart = null;
+        let priorityPie = null;
+
+        function initializeCharts() {
+            // Rating Distribution Chart
+            const ratingCtx = document.getElementById('rating-chart').getContext('2d');
+            ratingChart = new Chart(ratingCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Number of Issues',
+                        data: [],
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgb(209, 213, 219)'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'rgb(209, 213, 219)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgb(209, 213, 219)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Priority Pie Chart
+            const pieCtx = document.getElementById('priority-pie').getContext('2d');
+            priorityPie = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.5)',
+                            'rgba(245, 158, 11, 0.5)',
+                            'rgba(16, 185, 129, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(245, 158, 11)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgb(209, 213, 219)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDashboard(data) {
+            // Update total issues
+            const totalIssues = data.length;
+            document.getElementById('total-issues').textContent = totalIssues;
+
+            // Update high priority issues
+            const highPriority = data.filter(item => item.false_positive_rate >= 7).length;
+            document.getElementById('high-priority').textContent = highPriority;
+
+            // Update average rating
+            const avgRating = (data.reduce((acc, item) => acc + item.false_positive_rate, 0) / totalIssues).toFixed(1);
+            document.getElementById('avg-rating').textContent = avgRating;
+
+            // Update rating distribution
+            const ratingDistribution = Array(11).fill(0);
+            data.forEach(item => {
+                const rating = Math.round(item.false_positive_rate);
+                ratingDistribution[rating]++;
+            });
+
+            ratingChart.data.labels = Array.from({length: 11}, (_, i) => i);
+            ratingChart.data.datasets[0].data = ratingDistribution;
+            ratingChart.update();
+
+            // Update priority distribution
+            const high = data.filter(item => item.false_positive_rate >= 7).length;
+            const medium = data.filter(item => item.false_positive_rate >= 4 && item.false_positive_rate < 7).length;
+            const low = data.filter(item => item.false_positive_rate < 4).length;
+
+            priorityPie.data.datasets[0].data = [high, medium, low];
+            priorityPie.update();
+
+            // Update findings table
+            const tbody = document.getElementById('findings-table');
+            tbody.innerHTML = '';
+
+            data.sort((a, b) => b.false_positive_rate - a.false_positive_rate)
+                .forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 rounded-full text-sm ${getRatingClass(item.false_positive_rate)}">
+                                ${item.false_positive_rate.toFixed(1)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${item.rule_id}</td>
+                        <td class="px-6 py-4 text-sm">${item.rule_description}</td>
+                        <td class="px-6 py-4">
+                            <code class="text-sm bg-gray-800 rounded px-2 py-1">${item.line}</code>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+        }
+
+        function getRatingClass(rating) {
+            if (rating >= 7) return 'bg-red-900 text-red-200';
+            if (rating >= 4) return 'bg-yellow-900 text-yellow-200';
+            return 'bg-green-900 text-green-200';
+        }
+
+        document.getElementById('file-upload').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!ratingChart || !priorityPie) {
+                            initializeCharts();
+                        }
+                        updateDashboard(data);
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                        alert('Error parsing JSON file. Please ensure it\'s properly formatted.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Initialize charts on load
+        initializeCharts();
+    </script>
+</body>
+</html>
