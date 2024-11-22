@@ -1,156 +1,241 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-  }
-  
-  .phase {
-    padding: 20px;
-  }
-  
-  /* Game container layout */
-  .game-container {
-    display: flex;
-    gap: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  /* Sidebar styles */
-  #sidebar {
-    width: 200px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: fit-content;
-    position: sticky;
-    top: 20px;
-  }
-  
-  /* Main area styles */
-  .main-area {
-    flex: 1;
-  }
-  
-  /* Grid layouts */
-  #list-grid,
-  #selection-grid,
-  #character-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px;
-    padding: 20px;
-  }
-  
-  /* Character box styles */
-  .character-box {
-    background: white;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .character-box img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .character-box .character-name {
-    margin: 8px 0;
-    text-align: center;
-    font-weight: bold;
-  }
-  
-  /* List box styles */
-  .list-box {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .list-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  
-  /* Button styles */
-  .button-container {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .action-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .action-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .nav-button {
-    padding: 8px 16px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  /* States */
-  .grayed-out {
-    filter: grayscale(100%);
-    opacity: 0.6;
-  }
-  
-  .character-box.selected {
-    border: 2px solid #007bff;
-  }
-  
-  /* Responsive design */
-  @media (max-width: 768px) {
-    .game-container {
-      flex-direction: column;
-    }
-    
-    #sidebar {
-      width: auto;
-      position: static;
-    }
-  }
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
 
-  /* Add to your existing CSS */
+.phase {
+  padding: 10px;
+}
+
+/* Game container layout */
+.game-container {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* Sidebar styles */
+#sidebar {
+  width: 200px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  height: fit-content;
+}
+
+/* Main area styles */
+.main-area {
+  width: 100%;
+}
+
+/* Grid layouts */
+#list-grid,
+#selection-grid,
+#character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Character box styles */
+.character-box {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.character-box img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.character-box .character-name {
+  margin: 8px 0;
+  text-align: center;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+}
+
+/* List box styles */
+.list-box {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.list-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.list-box img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Button styles */
+.button-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#reset-grayed,
+#reset-game,
+#back-to-lists {
+  padding: 15px 25px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  margin: 0 10px;
+  min-width: 120px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#reset-grayed:hover,
+#reset-game:hover,
+#back-to-lists:hover {
+  background-color: #0056b3;
+}
+
+#reset-grayed:active,
+#reset-game:active,
+#back-to-lists:active {
+  transform: scale(0.98);
+}
+
+/* States */
+.grayed-out {
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+.character-box.selected {
+  border: 2px solid #007bff;
+}
+
+/* Dark theme */
 .theme-dark #sidebar {
   background: #2d2d2d;
   color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.theme-dark #sidebar h2 {
+.theme-dark .character-box {
+  background: #3d3d3d;
   color: #ffffff;
 }
 
-.theme-dark #sidebar .character-box {
-  background: #3d3d3d;
-  border-color: #4d4d4d;
+/* Controls placement */
+.controls {
+  position: relative;
+  z-index: 1000;
 }
 
-.theme-dark #sidebar .character-box:hover {
-  background: #4d4d4d;
+/* Mobile and tablet styles */
+@media screen and (max-width: 1024px) {
+  body {
+      padding-bottom: 120px;
+      min-height: 100vh;
+  }
+
+  .game-container {
+      display: block;
+      padding: 5px;
+  }
+
+  /* Specific to list selection grid */
+  #list-selection #list-grid {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 16px;
+  }
+
+  #list-selection .list-box {
+      aspect-ratio: 2/3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 30px;
+  }
+
+  #list-selection .list-box img {
+      height: 350px;
+      object-fit: cover;
+      margin-bottom: 20px;
+  }
+
+  /* Other grids */
+  #selection-grid,
+  #character-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      padding: 8px;
+  }
+
+  .character-box img {
+      height: 250px;
+  }
+
+  /* Mobile button styles */
+  #reset-grayed,
+  #reset-game,
+  #back-to-lists {
+      position: fixed;
+      bottom: 30px;
+      padding: 25px 40px;
+      font-size: 1.4rem;
+      min-width: 200px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  #reset-grayed {
+      left: 25%;
+      transform: translateX(-50%);
+  }
+
+  #reset-game {
+      right: 25%;
+      transform: translateX(50%);
+  }
+
+  #back-to-lists {
+      left: 50%;
+      transform: translateX(-50%);
+  }
+
+  #reset-grayed:active {
+      transform: translateX(-50%) scale(0.98);
+  }
+
+  #reset-game:active {
+      transform: translateX(50%) scale(0.98);
+  }
+
+  #back-to-lists:active {
+      transform: translateX(-50%) scale(0.98);
+  }
 }
