@@ -1,35 +1,268 @@
-<style>
-  .flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+    /* Existing styles remain unchanged */
+    
+    /* New styles */
+    .theme-dark {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+    
+    .theme-dark .character-box,
+    .theme-dark .list-box {
+        background: #2d2d2d;
+        color: #ffffff;
+    }
+    
+    .theme-dark .character-box:hover,
+    .theme-dark .list-box:hover {
+        background: #3d3d3d;
+    }
+    
+    .controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    /* Update the control-button class in your CSS */
+.control-button {
+   padding: 16px;  /* Increased from 8px */
+   border-radius: 50%;
+   border: none;
+   cursor: pointer;
+   background: #ffffff;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   font-size: 24px;  /* Added for larger icons */
+   width: 50px;     /* Added fixed width */
+   height: 50px;    /* Added fixed height */
+   display: flex;
+   align-items: center;
+   justify-content: center;
 }
-  .item {
-    margin-top: 25px;
-  }
-  .item2 {
-    margin-top: 0px;
-  }
-  .item img { height: 200px; }
-   .item2 img { height: 200px; }
+    
+    .theme-dark .control-button {
+        background: #2d2d2d;
+        color: #ffffff;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .theme-dark .modal-content {
+        background: #2d2d2d;
+    }
+    
+    .guide-option {
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .theme-dark .guide-option {
+        background: #3d3d3d;
+    }
+    
+    .guide-option:hover {
+        background: #f0f0f0;
+    }
+    
+    .theme-dark .guide-option:hover {
+        background: #4d4d4d;
+    }
+    
+    .star {
+        position: fixed;
+        width: 2px;
+        height: 2px;
+        background: white;
+        pointer-events: none;
+    }
+    
+    @keyframes twinkle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.2; }
+    }
+    
+    .list-preview-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button class="control-button" id="darkModeToggle">🌓</button>
+        <button class="control-button" id="starryBgToggle">✨</button>
+        <button class="control-button" id="instructionsButton">❔</button>
+    </div>
 
- body { 
-  background-image: url('./compile_blur.jpg');
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center; 
-}
-</style>
-<div class="flex-container">
-  <!--<div class="PresaveAlbum item2"><a href="https://distrokid.com/hyperfollow/compile/reaching-3"><img src="./PreSave.png"></a></div>-->
-  <div class="NewLyricsVideo item2"><a href="https://www.youtube.com/watch?v=XjFjR-7LGPk"><img src="./NewLyricsVideo.png"></a></div>
-  <div class="Bandcamp item"><a href="https://compileband.bandcamp.com/releases"><img src="./bandcamp.png"></a></div>
-  <div class="Facebook item"><a href="https://www.facebook.com/CompileBand/"><img src="./find_facebook.png"></a></div>
-  <div class="Spotify item"><a href="https://open.spotify.com/artist/6ZC5h91sm5YibuZXflqjLA"><img src="./Spotify.png"></div>
-  <div class="YouTube item"><a href="https://www.youtube.com/channel/UCaBXItZ-tO__3YCPPW6FVHg"><img src="./listen_youtube.png"></div>
-  <div class="AppleMusic item"><a href="https://music.apple.com/us/album/reaching/1551390138?uo=4"><img src="./AppleMusic.png"></a></div>
-  <!--<div class="Deezer item"><a href="https://www.deezer.com/en/album/107274612"><img src="./Deezer.png"></a></div>-->
-</div>
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+            <h2>How to Play Guess Who?</h2>
+            <div class="guide-option" id="classic-guide">
+                <h3>Classic Questions</h3>
+                <p>Focus on visual characteristics:</p>
+                <ul>
+                    <li>Does your character wear glasses?</li>
+                    <li>What color is their hair?</li>
+                    <li>Do they have facial hair?</li>
+                    <li>Are they wearing any accessories?</li>
+                </ul>
+            </div>
+            <div class="guide-option" id="spicy-guide">
+                <h3>Spicy Questions</h3>
+                <p>Get creative with hypothetical scenarios:</p>
+                <ul>
+                    <li>Could they win against a bear in a fair fight?</li>
+                    <li>Netflix binge or outdoor adventure?</li>
+                    <li>What would be their go-to karaoke song?</li>
+                    <li>Pizza toppings they'd definitely remove?</li>
+                </ul>
+            </div>
+            <button class="action-button" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <div id="list-selection" class="phase">
+        <h1>Select Character List</h1>
+        <div id="list-grid"></div>
+      </div>
+    
+      <!-- Character Selection Phase -->
+      <div id="character-selection" class="phase" style="display: none;">
+        <h1>Select Your Character</h1>
+        <div id="selection-grid"></div>
+        <button id="back-to-lists" class="nav-button">Back to Lists</button>
+      </div>
+    
+      <!-- Game Phase -->
+      <div id="game-phase" class="phase" style="display: none;">
+        <div class="game-container">
+          <!-- Sidebar for selected character -->
+          <div id="sidebar">
+            <h2>Your Character</h2>
+            <div id="your-character"></div>
+          </div>
+          
+          <!-- Main game area -->
+          <div class="main-area">
+            <h2>Guess Who?</h2>
+            <div id="character-grid"></div>
+            <div class="button-container">
+              <button id="reset-grayed" class="action-button">Reset Grayed Out</button>
+              <button id="reset-game" class="action-button">New Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <script src="characters.js"></script>
+      <script src="script.js"></script>
+
+    <script>
+    // Add to existing game state
+    let isDarkMode = true;
+    let isStarryBg = true;
+    
+    // Modified list selection rendering
+    function renderListSelection() {
+        const listGrid = document.getElementById('list-grid');
+        listGrid.innerHTML = '';
+        
+        Object.entries(characterLists).forEach(([key, list]) => {
+            const listBox = document.createElement('div');
+            listBox.className = 'list-box';
+            listBox.innerHTML = `
+                <img src="./images/${key}/folder.jpg" class="list-preview-img" alt="${list.name}">
+                <h3>${list.name}</h3>
+                <p>${list.characters.length} characters</p>
+            `;
+            listBox.addEventListener('click', () => selectList(key));
+            listGrid.appendChild(listBox);
+        });
+        
+        showPhase('listSelection');
+    }
+    
+    // New functions for features
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('theme-dark', isDarkMode);
+    }
+    
+    function toggleStarryBackground() {
+        isStarryBg = !isStarryBg;
+        if (isStarryBg) {
+            createStars();
+        } else {
+            removeStars();
+        }
+    }
+    
+    function createStars() {
+        removeStars(); // Clear existing stars
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animation = `twinkle ${2 + Math.random() * 3}s infinite`;
+            document.body.appendChild(star);
+        }
+    }
+    
+    function removeStars() {
+        document.querySelectorAll('.star').forEach(star => star.remove());
+    }
+    
+    function showModal() {
+        document.getElementById('instructions-modal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('instructions-modal').style.display = 'none';
+    }
+    
+    // Additional event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        document.getElementById('starryBgToggle').addEventListener('click', toggleStarryBackground);
+        document.getElementById('instructionsButton').addEventListener('click', showModal);
+        
+        // Close modal when clicking outside
+        document.getElementById('instructions-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+        document.body.classList.add('theme-dark');
+        createStars();
+    });
+    </script>
+</body>
+</html>

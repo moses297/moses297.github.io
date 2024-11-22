@@ -1,110 +1,142 @@
-let audioContext;
-let analyser;
-let microphone;
-let bufferLength;
-let dataArray;
+// Game state
+let currentPhase = 'list-selection';
+let selectedList = null;
+let selectedCharacter = null;
+let grayedOutCharacters = new Set();
 
-// Initialize AudioContext and Analyser
-function initializeAudio() {
-    return new Promise((resolve, reject) => {
-        if (audioContext) {
-            resolve();
-            return;
-        }
+// DOM Elements
+const phases = {
+  listSelection: document.getElementById('list-selection'),
+  characterSelection: document.getElementById('character-selection'),
+  gamePhase: document.getElementById('game-phase')
+};
 
-        audioContext = new AudioContext();
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 4096;  // Increase fftSize for better frequency resolution
-        bufferLength = analyser.frequencyBinCount;
-        dataArray = new Float32Array(bufferLength);
-
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then((stream) => {
-                microphone = audioContext.createMediaStreamSource(stream);
-                microphone.connect(analyser);
-                resolve();
-            })
-            .catch((err) => {
-                console.error("Error accessing microphone:", err);
-                reject(err);
-            });
-    });
+// Initialize game
+function initGame() {
+  renderListSelection();
+  setupEventListeners();
 }
 
-// Apply a window function to reduce spectral leakage
-function applyWindowFunction(dataArray) {
-    const size = dataArray.length;
-    const window = new Float32Array(size);
-    for (let i = 0; i < size; i++) {
-        window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (size - 1))); // Hanning window
-    }
-    for (let i = 0; i < size; i++) {
-        dataArray[i] *= window[i];
-    }
+// Event Listeners
+function setupEventListeners() {
+  document.getElementById('back-to-lists').addEventListener('click', backToLists);
+  document.getElementById('reset-grayed').addEventListener('click', resetGrayedOut);
+  document.getElementById('reset-game').addEventListener('click', resetGame);
 }
 
-// Detect pitch using FFT
-function detectPitchFromDataArray(dataArray, sampleRate) {
-    applyWindowFunction(dataArray);
-    analyser.getFloatFrequencyData(dataArray);
-
-    let nyquist = sampleRate / 2;
-    let maxMagnitude = -Infinity;
-    let maxIndex = -1;
-
-    // Find peak in frequency domain
-    for (let i = 0; i < bufferLength; i++) {
-        if (dataArray[i] > maxMagnitude) {
-            maxMagnitude = dataArray[i];
-            maxIndex = i;
-        }
-    }
-
-    if (maxIndex === -1) {
-        return null; // No peak found
-    }
-
-    let fundamentalFreq = (maxIndex * nyquist) / (bufferLength / 2);
-
-    // Adjust the frequency range if necessary
-    if (fundamentalFreq < 20 || fundamentalFreq > 2000) {
-        return null;
-    }
-
-    return getNoteName(fundamentalFreq);
+// Phase Management
+function showPhase(phaseName) {
+  Object.values(phases).forEach(phase => phase.style.display = 'none');
+  phases[phaseName].style.display = 'block';
+  currentPhase = phaseName;
 }
 
-// Get note name from frequency
-function getNoteName(freq) {
-    const A4 = 440;
-    const C0 = A4 * Math.pow(2, -4.75);
-    const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    if (freq <= 0) return null;
-
-    const h = Math.round(12 * Math.log2(freq / C0));
-    const n = (h + 120) % 12; // normalize to within range
-    const octave = Math.floor(h / 12) - 1;
-    return `${noteNames[n]}${octave}`;
+// List Selection Phase
+function renderListSelection() {
+  const listGrid = document.getElementById('list-grid');
+  listGrid.innerHTML = '';
+  
+  Object.entries(characterLists).forEach(([key, list]) => {
+    const listBox = document.createElement('div');
+    listBox.className = 'list-box';
+    listBox.innerHTML = `<h3>${list.name}</h3>
+                        <p>${list.characters.length} characters</p>`;
+    listBox.addEventListener('click', () => selectList(key));
+    listGrid.appendChild(listBox);
+  });
+  
+  showPhase('listSelection');
 }
 
-// Main loop to continuously check audio input
-function analyzeAudio() {
-    analyser.getFloatFrequencyData(dataArray);
-    let pitch = detectPitchFromDataArray(dataArray, audioContext.sampleRate);
-    
-    if (pitch) {
-        console.log("Detected pitch:", pitch);
-        // Update UI or perform other actions based on detected pitch
+function selectList(listKey) {
+  selectedList = listKey;
+  renderCharacterSelection();
+  showPhase('characterSelection');
+}
+
+// Character Selection Phase
+function renderCharacterSelection() {
+  const selectionGrid = document.getElementById('selection-grid');
+  selectionGrid.innerHTML = '';
+  
+  characterLists[selectedList].characters.forEach(character => {
+    const charBox = createCharacterBox(character);
+    charBox.addEventListener('click', () => selectCharacter(character));
+    selectionGrid.appendChild(charBox);
+  });
+}
+
+function selectCharacter(character) {
+  selectedCharacter = character;
+  renderGamePhase();
+  showPhase('gamePhase');
+}
+
+// Game Phase
+function renderGamePhase() {
+  renderSelectedCharacter();
+  renderCharacterGrid();
+}
+
+function renderSelectedCharacter() {
+  const yourCharacter = document.getElementById('your-character');
+  yourCharacter.innerHTML = '';
+  const charBox = createCharacterBox(selectedCharacter);
+  charBox.classList.add('selected');
+  yourCharacter.appendChild(charBox);
+}
+
+function renderCharacterGrid() {
+  const characterGrid = document.getElementById('character-grid');
+  characterGrid.innerHTML = '';
+  
+  characterLists[selectedList].characters.forEach(character => {
+    const charBox = createCharacterBox(character);
+    if (grayedOutCharacters.has(character.id)) {
+      charBox.classList.add('grayed-out');
     }
-
-    requestAnimationFrame(analyzeAudio);
+    charBox.addEventListener('click', () => toggleCharacter(character.id, charBox));
+    characterGrid.appendChild(charBox);
+  });
 }
 
-// Start the audio processing
-document.getElementById('startButton').addEventListener('click', () => {
-    initializeAudio().then(() => {
-        analyzeAudio();
-    }).catch(err => {
-        console.error('Initialization error:', err);
-    });
-});
+// Helper Functions
+function createCharacterBox(character) {
+  const charBox = document.createElement('div');
+  charBox.className = 'character-box';
+  charBox.innerHTML = `
+    <img src="${character.image}" alt="${character.name}">
+    <div class="character-name">${character.name}</div>
+  `;
+  return charBox;
+}
+
+function toggleCharacter(characterId, element) {
+  if (grayedOutCharacters.has(characterId)) {
+    grayedOutCharacters.delete(characterId);
+    element.classList.remove('grayed-out');
+  } else {
+    grayedOutCharacters.add(characterId);
+    element.classList.add('grayed-out');
+  }
+}
+
+// Reset Functions
+function resetGrayedOut() {
+  grayedOutCharacters.clear();
+  renderCharacterGrid();
+}
+
+function resetGame() {
+  selectedList = null;
+  selectedCharacter = null;
+  grayedOutCharacters.clear();
+  renderListSelection();
+}
+
+function backToLists() {
+  resetGame();
+}
+
+// Start the game
+document.addEventListener('DOMContentLoaded', initGame);
