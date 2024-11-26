@@ -126,6 +126,37 @@
     <div id="instructions-modal" class="modal">
         <div class="modal-content">
             <h2>How to Play Guess Who?</h2>
+            
+            <!-- Video Example Section -->
+            <div class="video-section">
+                <h3>Watch How to Play</h3>
+                <p class="video-caption">A video example of how to play</p>
+                <div class="video-placeholder">
+                    <!-- TikTok Embed -->
+                    <script async src="https://www.tiktok.com/embed.js"></script>
+                    <blockquote 
+                        class="tiktok-embed" 
+                        cite="https://www.tiktok.com/@ya.israeli/video/7422523002127961377"
+                        data-video-id="7422523002127961377">
+                        <section>
+                            <a target="_blank" href="https://www.tiktok.com/@ya.israeli">@ya.israeli</a>
+                        </section>
+                    </blockquote>
+                </div>
+            </div>
+    
+            <!-- Multiplayer Instructions -->
+            <div class="guide-option" id="multiplayer-guide">
+                <h3>Playing with Friends</h3>
+                <p>Play together for maximum fun:</p>
+                <ul>
+                    <li>Each player should open the game in their own browser</li>
+                    <li>Play in the same room or connect through Discord</li>
+                    <li>Each player selects their secret character</li>
+                    <li>Take turns asking questions to guess each other's character!</li>
+                </ul>
+            </div>
+            
             <div class="guide-option" id="classic-guide">
                 <h3>Classic Questions</h3>
                 <p>Focus on visual characteristics:</p>
@@ -136,6 +167,7 @@
                     <li>Are they wearing any accessories?</li>
                 </ul>
             </div>
+            
             <div class="guide-option" id="spicy-guide">
                 <h3>Spicy Questions</h3>
                 <p>Get creative with hypothetical scenarios:</p>
@@ -146,6 +178,7 @@
                     <li>Pizza toppings they'd definitely remove?</li>
                 </ul>
             </div>
+            
             <button class="action-button" onclick="closeModal()">Close</button>
         </div>
     </div>
