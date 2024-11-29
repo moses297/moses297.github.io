@@ -527,3 +527,114 @@ characterLists['lotr_characters'] = {
     }
 ]
 };
+
+characterLists['nintendo_switch_characters'] = {
+    name: 'Nintendo Switch Characters',
+    characters: [
+    {
+        "id": 1,
+        "name": "Mario",
+        "image": "./images/nintendo_switch_characters/mario.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Luigi",
+        "image": "./images/nintendo_switch_characters/luigi.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Princess Peach",
+        "image": "./images/nintendo_switch_characters/princess_peach.jpg"
+    },
+    {
+        "id": 4,
+        "name": "Bowser",
+        "image": "./images/nintendo_switch_characters/bowser.jpg"
+    },
+    {
+        "id": 5,
+        "name": "Yoshi",
+        "image": "./images/nintendo_switch_characters/yoshi.jpg"
+    },
+    {
+        "id": 6,
+        "name": "Link",
+        "image": "./images/nintendo_switch_characters/link.jpg"
+    },
+    {
+        "id": 7,
+        "name": "Princess Zelda",
+        "image": "./images/nintendo_switch_characters/princess_zelda.jpg"
+    },
+    {
+        "id": 8,
+        "name": "Ganondorf",
+        "image": "./images/nintendo_switch_characters/ganondorf.jpg"
+    },
+    {
+        "id": 9,
+        "name": "Kirby",
+        "image": "./images/nintendo_switch_characters/kirby.jpg"
+    },
+    {
+        "id": 10,
+        "name": "Donkey Kong",
+        "image": "./images/nintendo_switch_characters/donkey_kong.jpg"
+    },
+    {
+        "id": 11,
+        "name": "Diddy Kong",
+        "image": "./images/nintendo_switch_characters/diddy_kong.jpg"
+    },
+    {
+        "id": 12,
+        "name": "Fox McCloud",
+        "image": "./images/nintendo_switch_characters/fox_mccloud.jpg"
+    },
+    {
+        "id": 13,
+        "name": "Pikachu",
+        "image": "./images/nintendo_switch_characters/pikachu.jpg"
+    },
+    {
+        "id": 14,
+        "name": "Jigglypuff",
+        "image": "./images/nintendo_switch_characters/jigglypuff.jpg"
+    },
+    {
+        "id": 15,
+        "name": "Toad",
+        "image": "./images/nintendo_switch_characters/toad.jpg"
+    },
+    {
+        "id": 16,
+        "name": "Ash Ketchum",
+        "image": "./images/nintendo_switch_characters/ash_ketchum.jpg"
+    },
+    {
+        "id": 17,
+        "name": "Wario",
+        "image": "./images/nintendo_switch_characters/wario.jpg"
+    },
+    {
+        "id": 18,
+        "name": "Waluigi",
+        "image": "./images/nintendo_switch_characters/waluigi.jpg"
+    },
+    {
+        "id": 19,
+        "name": "Sonic the Hedgehog",
+        "image": "./images/nintendo_switch_characters/sonic_the_hedgehog.jpg"
+    },
+    {
+        "id": 20,
+        "name": "Tails",
+        "image": "./images/nintendo_switch_characters/tails.jpg"
+    },
+    {
+        "id": 21,
+        "name": "Pac-Man",
+        "image": "./images/nintendo_switch_characters/pac-man.jpg"
+    }
+]
+};
