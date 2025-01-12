@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flappy OX - Advanced</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #2D1B4E;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        #gameContainer {
+            position: relative;
+        }
+        #gameCanvas {
+            border: 4px solid #8B5CF6;
+            border-radius: 8px;
+        }
+        .ui-element {
+            position: absolute;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+        #score {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+        }
+        #level {
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #A78BFA;
+        }
+        #startMessage {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            text-align: center;
+        }
+        #difficultySelect {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #6D28D9;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(109, 40, 217, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        #restartButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #8B5CF6;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        #restartButton:hover {
+            background-color: #A78BFA;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="800"></canvas>
+        <div id="score" class="ui-element">0</div>
+        <div id="level" class="ui-element">Level 1</div>
+        <div id="startMessage" class="ui-element">
+            Click to Start<br>
+            Space/Click to Jump<br>
+            <span style="font-size: 24px; color: #A78BFA;">Choose difficulty to begin</span>
+        </div>
+        <select id="difficultySelect">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="extreme">Extreme</option>
+        </select>
+        <div id="gameOver" class="game-over">
+            <h2>Game Over!</h2>
+            <p>Score: <span id="finalScore">0</span></p>
+            <p>Level: <span id="finalLevel">1</span></p>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const startMessage = document.getElementById('startMessage');
+        const difficultySelect = document.getElementById('difficultySelect');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const finalLevelElement = document.getElementById('finalLevel');
+        const restartButton = document.getElementById('restartButton');
+
+        // Game constants
+        const DIFFICULTY_SETTINGS = {
+            easy: { gravity: 0.25, jumpForce: -7, pipeSpeed: 2.5, pipeSpacing: 350 },
+            medium: { gravity: 0.3, jumpForce: -8, pipeSpeed: 3, pipeSpacing: 320 },
+            hard: { gravity: 0.35, jumpForce: -9, pipeSpeed: 4, pipeSpacing: 300 },
+            extreme: { gravity: 0.4, jumpForce: -10, pipeSpeed: 5, pipeSpacing: 280 }
+        };
+
+        // Level thresholds
+        const LEVEL_THRESHOLDS = [0, 8, 20, 35, 55, 80, 100];
+        const PIPE_GAP_DECREASE = 3; // Decrease gap size by this amount each level
+
+        // Game state
+        let gameStarted = false;
+        let score = 0;
+        let currentLevel = 1;
+        let difficulty = DIFFICULTY_SETTINGS.easy;
+        let baseGap = 200;
+
+        // Bird object with larger size
+        let bird = {
+            x: 200,
+            y: canvas.height / 2,
+            velocity: 0,
+            size: 60  // Increased size for better visibility
+        };
+
+        let pipes = [];
+        
+        // Purple color palette
+        const colors = {
+            background: '#2D1B4E',
+            bird: '#8B5CF6',
+            pipe: '#6D28D9',
+            highlight: '#A78BFA'
+        };
+
+        // Load background image
+        const backgroundImg = new Image();
+        backgroundImg.src = 'assets/background.png';  // Add your background image here
+        let backgroundX = 0;
+        const BACKGROUND_SCROLL_SPEED = 1;  // Adjust scroll speed as needed
+        
+        // Draw scrolling background
+        function drawBackground() {
+            if (backgroundImg.complete && backgroundImg.naturalWidth > 0) {
+                // Calculate scaling to maintain aspect ratio while covering canvas height
+                const scale = canvas.height / backgroundImg.naturalHeight;
+                const scaledWidth = backgroundImg.naturalWidth * scale;
+                
+                // Draw multiple copies of the background for seamless scrolling
+                let currentX = backgroundX;
+                while (currentX < canvas.width) {
+                    ctx.drawImage(backgroundImg, currentX, 0, scaledWidth, canvas.height);
+                    currentX += scaledWidth;
+                }
+                // Draw one more copy before the first visible one for smooth scrolling
+                ctx.drawImage(backgroundImg, backgroundX - scaledWidth, 0, scaledWidth, canvas.height);
+                
+                // Update background position
+                if (gameStarted) {
+                    backgroundX -= BACKGROUND_SCROLL_SPEED;
+                    // Reset position when we've scrolled one full width
+                    if (backgroundX <= 0) {
+                        backgroundX = scaledWidth;
+                    }
+                }
+            } else {
+                // Fallback solid background
+                ctx.fillStyle = colors.background;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Load OX mascot image
+        const oxMascot = new Image();
+        oxMascot.src = 'assets/ox-mascot.png';  // You'll need to add this image
+        oxMascot.onerror = () => {
+            console.log('Failed to load OX mascot image, using fallback');
+        };
+
+        // Initialize game
+        function init() {
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            pipes = [];
+            score = 0;
+            currentLevel = 1;
+            scoreElement.textContent = score;
+            levelElement.textContent = `Level ${currentLevel}`;
+            gameStarted = false;
+            startMessage.style.display = 'block';
+            gameOverScreen.style.display = 'none';
+            difficulty = DIFFICULTY_SETTINGS[difficultySelect.value];
+        }
+
+        // Create pipe with dynamic gap size
+        function createPipe() {
+            const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+            const minHeight = 50;
+            const maxHeight = canvas.height - currentGap - minHeight;
+            const height = Math.random() * (maxHeight - minHeight) + minHeight;
+
+            pipes.push({
+                x: canvas.width,
+                height: height,
+                scored: false
+            });
+        }
+
+        // Draw bird (OX mascot)
+        function drawBird() {
+            if (oxMascot.complete && oxMascot.naturalWidth > 0) {
+                // Draw actual mascot image
+                ctx.save();
+                ctx.translate(bird.x, bird.y);
+                ctx.rotate(bird.velocity * 0.02); // Tilt based on velocity
+                ctx.drawImage(oxMascot, -bird.size/2, -bird.size/2, bird.size, bird.size);
+                ctx.restore();
+            } else {
+                // Fallback to circle with face
+                ctx.fillStyle = colors.bird;
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Add face details
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(bird.x + 10, bird.y - 10, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y + 10, 15, 0, Math.PI);
+                ctx.stroke();
+            }
+        }
+
+        // Draw pipes with enhanced graphics
+        function drawPipes() {
+            pipes.forEach(pipe => {
+                // Top pipe
+                ctx.fillStyle = colors.pipe;
+                ctx.fillRect(pipe.x, 0, 80, pipe.height);
+                
+                // Top pipe cap
+                ctx.fillStyle = colors.highlight;
+                ctx.fillRect(pipe.x - 5, pipe.height - 30, 90, 30);
+                
+                // Bottom pipe
+                ctx.fillStyle = colors.pipe;
+                const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+                ctx.fillRect(pipe.x, pipe.height + currentGap, 80, canvas.height - pipe.height - currentGap);
+                
+                // Bottom pipe cap
+                ctx.fillStyle = colors.highlight;
+                ctx.fillRect(pipe.x - 5, pipe.height + currentGap, 90, 30);
+            });
+        }
+
+        // Update game state
+        function update() {
+            if (!gameStarted) return;
+
+            // Update bird
+            bird.velocity += difficulty.gravity;
+            bird.y += bird.velocity;
+
+            // Update pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - difficulty.pipeSpacing) {
+                createPipe();
+            }
+
+            pipes.forEach(pipe => {
+                pipe.x -= difficulty.pipeSpeed;
+
+                // Score when passing pipe
+                if (!pipe.scored && pipe.x + 80 < bird.x) {
+                    pipe.scored = true;
+                    score++;
+                    scoreElement.textContent = score;
+                    
+                    // Check for level up
+                    const newLevel = LEVEL_THRESHOLDS.findIndex(threshold => score < threshold) || LEVEL_THRESHOLDS.length;
+                    if (newLevel !== currentLevel) {
+                        currentLevel = newLevel;
+                        levelElement.textContent = `Level ${currentLevel}`;
+                        // Increase difficulty slightly with each level
+                        difficulty.pipeSpeed += 0.2;
+                    }
+                }
+            });
+
+            // Remove off-screen pipes
+            pipes = pipes.filter(pipe => pipe.x + 80 > 0);
+
+            // Check collisions
+            if (checkCollisions()) {
+                gameOver();
+                return;
+            }
+        }
+
+        // Game over handling
+        function gameOver() {
+            gameStarted = false;
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = currentLevel;
+            gameOverScreen.style.display = 'block';
+        }
+
+        // Check for collisions
+        function checkCollisions() {
+            // Floor and ceiling
+            if (bird.y + bird.size / 2 > canvas.height || bird.y - bird.size / 2 < 0) {
+                return true;
+            }
+
+            // Pipes with more forgiving hitbox
+            return pipes.some(pipe => {
+                const hitBox = bird.size / 2.5;  // More forgiving hitbox
+                const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+                return (
+                    bird.x + hitBox > pipe.x &&
+                    bird.x - hitBox < pipe.x + 80 &&
+                    (bird.y - hitBox < pipe.height ||
+                    bird.y + hitBox > pipe.height + currentGap)
+                );
+            });
+        }
+
+        // Draw game
+        function draw() {
+            // Draw scrolling background
+            drawBackground();
+
+            drawPipes();
+            drawBird();
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Handle input
+        function jump() {
+            if (!gameStarted) {
+                gameStarted = true;
+                startMessage.style.display = 'none';
+            }
+            bird.velocity = difficulty.jumpForce;
+        }
+
+        // Event listeners
+        canvas.addEventListener('click', jump);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+                e.preventDefault();
+            }
+        });
+        restartButton.addEventListener('click', init);
+        difficultySelect.addEventListener('change', init);
+
+        // Start game
+        init();
+        gameLoop();
+    </script>
+</body>
+</html>
