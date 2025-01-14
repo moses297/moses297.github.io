@@ -397,6 +397,9 @@
         }
 
         function checkCollisions() {
+            if (bird.y + bird.size / 2 > canvas.height || bird.y - bird.size / 2 < 0) {
+                return true;
+                
             if (bird) {
                 bird.size = Math.min(canvas.width, canvas.height) * 0.1; // Increased from 0.075
                 if (!gameStarted) {
