@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy OX - Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2D1B4E;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: calc(100vw * 16/9);
+            max-width: 100%;
+            max-height: 100vh;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            border: 4px solid #8B5CF6;
+            border-radius: 8px;
+            background-color: #2D1B4E;
+            touch-action: none;
+        }
+
+        .ui-element {
+            position: absolute;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #score {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: max(24px, min(48px, 6vmin));
+        }
+
+        #level {
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: max(16px, min(24px, 3vmin));
+            color: #A78BFA;
+        }
+
+        #startMessage {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: max(18px, min(32px, 4vmin));
+            text-align: center;
+            width: 90%;
+            pointer-events: none;
+        }
+
+        #difficultySelect {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #6D28D9;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: max(14px, min(18px, 2.5vmin));
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            z-index: 100;
+            pointer-events: auto;
+        }
+
+        .game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(109, 40, 217, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 100;
+            pointer-events: auto;
+            width: 80%;
+            max-width: 300px;
+            cursor: default;
+        }
+
+        .game-over h2 {
+            font-size: max(20px, min(32px, 4vmin));
+            margin-bottom: 15px;
+        }
+
+        .game-over p {
+            font-size: max(16px, min(24px, 3vmin));
+            margin: 10px 0;
+        }
+
+        #restartButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #8B5CF6;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: max(14px, min(20px, 2.5vmin));
+            cursor: pointer;
+        }
+
+        #restartButton:hover {
+            background-color: #A78BFA;
+        }
+        #difficultySelect, #restartButton {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            cursor: pointer;
+            min-height: 44px; /* Minimum touch target size */
+            min-width: 44px;
+        }
+
+        /* Make sure touch targets are large enough on mobile */
+        @media (max-width: 768px) {
+            #difficultySelect {
+                padding: 12px;
+                font-size: max(16px, min(20px, 3vmin));
+            }
+
+            #restartButton {
+                padding: 12px 24px;
+                font-size: max(16px, min(22px, 3vmin));
+            }
+        }
+    </style>
+</head>
+<body>
+     <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score" class="ui-element">0</div>
+        <div id="level" class="ui-element">Level 1</div>
+        <div id="startMessage" class="ui-element">
+            Tap to Start<br>
+            Tap Screen to Jump<br>
+            <span style="font-size: 0.75em; color: #A78BFA;">Choose difficulty to begin</span>
+        </div>
+        <select id="difficultySelect">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="extreme">Extreme</option>
+        </select>
+        <div id="gameOver" class="game-over">
+            <h2>Game Over!</h2>
+            <p>Score: <span id="finalScore">0</span></p>
+            <p>Level: <span id="finalLevel">1</span></p>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const startMessage = document.getElementById('startMessage');
+        const difficultySelect = document.getElementById('difficultySelect');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const finalLevelElement = document.getElementById('finalLevel');
+        const restartButton = document.getElementById('restartButton');
+
+        function resizeCanvas() {
+            const container = document.getElementById('gameContainer');
+            const containerRect = container.getBoundingClientRect();
+            
+            // Set canvas size to match container's pixel dimensions
+            canvas.width = containerRect.width;
+            canvas.height = containerRect.height;
+            
+            // Update bird size and position if it exists
+            if (bird) {
+                bird.size = Math.min(canvas.width, canvas.height) * 0.075;
+                if (!gameStarted) {
+                    bird.x = canvas.width * 0.25;
+                    bird.y = canvas.height / 2;
+                }
+            }
+            
+            // Update base gap size
+            baseGap = Math.min(canvas.height * 0.25, 200);
+        }
+
+        const DIFFICULTY_SETTINGS = {
+            easy: { gravity: 0.4, jumpForce: -6, pipeSpeed: 2.5, pipeSpacing: 350 },
+            medium: { gravity: 0.45, jumpForce: -6.5, pipeSpeed: 3, pipeSpacing: 320 },
+            hard: { gravity: 0.5, jumpForce: -7, pipeSpeed: 4, pipeSpacing: 300 },
+            extreme: { gravity: 0.55, jumpForce: -7.5, pipeSpeed: 5, pipeSpacing: 280 }
+        };
+
+        const LEVEL_THRESHOLDS = [0, 8, 20, 35, 55, 80, 100];
+        const PIPE_GAP_DECREASE = 3;
+        const BACKGROUND_SCROLL_SPEED = 1;
+
+        // Game state
+        let gameStarted = false;
+        let score = 0;
+        let currentLevel = 1;
+        let difficulty = DIFFICULTY_SETTINGS.easy;
+        let baseGap = 200;
+        let backgroundX = 0;
+        let lastTime = 0;
+        let deltaTime = 0;
+
+        let bird = {
+            x: 0,
+            y: 0,
+            velocity: 0,
+            size: 60
+        };
+
+        let pipes = [];
+
+        const colors = {
+            background: '#2D1B4E',
+            bird: '#8B5CF6',
+            pipe: '#6D28D9',
+            highlight: '#A78BFA'
+        };
+
+        const backgroundImg = new Image();
+        backgroundImg.src = 'assets/background.png';
+
+        const oxMascot = new Image();
+        oxMascot.src = 'assets/ox-mascot.png';
+        oxMascot.onerror = () => console.log('Failed to load OX mascot image, using fallback');
+
+        function init() {
+            resizeCanvas();
+            bird.x = canvas.width * 0.25;
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            bird.size = Math.min(canvas.width, canvas.height) * 0.075;
+            pipes = [];
+            score = 0;
+            currentLevel = 1;
+            scoreElement.textContent = score;
+            levelElement.textContent = `Level ${currentLevel}`;
+            gameStarted = false;
+            startMessage.style.display = 'block';
+            gameOverScreen.style.display = 'none';
+            difficulty = DIFFICULTY_SETTINGS[difficultySelect.value];
+            baseGap = Math.min(canvas.height * 0.25, 200);
+            lastTime = performance.now();
+        }
+
+        function drawBackground() {
+            if (backgroundImg.complete && backgroundImg.naturalWidth > 0) {
+                const scale = canvas.height / backgroundImg.naturalHeight;
+                const scaledWidth = backgroundImg.naturalWidth * scale;
+                
+                let currentX = backgroundX;
+                while (currentX < canvas.width) {
+                    ctx.drawImage(backgroundImg, currentX, 0, scaledWidth, canvas.height);
+                    currentX += scaledWidth;
+                }
+                ctx.drawImage(backgroundImg, backgroundX - scaledWidth, 0, scaledWidth, canvas.height);
+                
+                if (gameStarted) {
+                    backgroundX -= BACKGROUND_SCROLL_SPEED * (deltaTime / 16);
+                    if (backgroundX <= -scaledWidth) {
+                        backgroundX = 0;
+                    }
+                }
+            } else {
+                ctx.fillStyle = colors.background;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function createPipe() {
+            const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+            const minHeight = canvas.height * 0.1;
+            const maxHeight = canvas.height - currentGap - minHeight;
+            const height = Math.random() * (maxHeight - minHeight) + minHeight;
+            pipes.push({
+                x: canvas.width,
+                height: height,
+                scored: false
+            });
+        }
+
+        function drawBird() {
+            if (oxMascot.complete && oxMascot.naturalWidth > 0) {
+                ctx.save();
+                ctx.translate(bird.x, bird.y);
+                ctx.rotate(bird.velocity * 0.02);
+                ctx.drawImage(oxMascot, -bird.size/2, -bird.size/2, bird.size, bird.size);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = colors.bird;
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(bird.x + bird.size/6, bird.y - bird.size/6, bird.size/7.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Smile
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = bird.size/20;
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y + bird.size/6, bird.size/4, 0, Math.PI);
+                ctx.stroke();
+            }
+        }
+
+        function drawPipes() {
+            const pipeWidth = canvas.width * 0.1;
+            pipes.forEach(pipe => {
+                // Top pipe
+                ctx.fillStyle = colors.pipe;
+                ctx.fillRect(pipe.x, 0, pipeWidth, pipe.height);
+
+                // Top pipe cap
+                ctx.fillStyle = colors.highlight;
+                ctx.fillRect(pipe.x - pipeWidth*0.06, pipe.height - pipeWidth*0.375, pipeWidth*1.125, pipeWidth*0.375);
+
+                const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+                
+                // Bottom pipe
+                ctx.fillStyle = colors.pipe;
+                ctx.fillRect(pipe.x, pipe.height + currentGap, pipeWidth, canvas.height - pipe.height - currentGap);
+
+                // Bottom pipe cap
+                ctx.fillStyle = colors.highlight;
+                ctx.fillRect(pipe.x - pipeWidth*0.06, pipe.height + currentGap, pipeWidth*1.125, pipeWidth*0.375);
+            });
+        }
+
+        function update(currentTime) {
+            deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+
+            if (!gameStarted) return;
+
+            // Update bird
+            bird.velocity += difficulty.gravity * (deltaTime / 16);
+            bird.y += bird.velocity * (deltaTime / 16);
+
+            // Create new pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - difficulty.pipeSpacing) {
+                createPipe();
+            }
+
+            // Update pipes
+            const pipeWidth = canvas.width * 0.1;
+            pipes.forEach(pipe => {
+                pipe.x -= (difficulty.pipeSpeed * canvas.width / 800) * (deltaTime / 16);
+
+                if (!pipe.scored && pipe.x + pipeWidth < bird.x) {
+                    pipe.scored = true;
+                    score++;
+                    scoreElement.textContent = score;
+
+                    const newLevel = LEVEL_THRESHOLDS.findIndex(threshold => score < threshold) || LEVEL_THRESHOLDS.length;
+                    if (newLevel !== currentLevel) {
+                        currentLevel = newLevel;
+                        levelElement.textContent = `Level ${currentLevel}`;
+                        difficulty.pipeSpeed += 0.2;
+                    }
+                }
+            });
+
+            // Remove off-screen pipes
+            pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
+
+            // Check collisions
+            if (checkCollisions()) {
+                gameOver();
+            }
+        }
+
+        function checkCollisions() {
+            if (bird.y + bird.size / 2 > canvas.height || bird.y - bird.size / 2 < 0) {
+                return true;
+            }
+
+            const pipeWidth = canvas.width * 0.1;
+            return pipes.some(pipe => {
+                const hitBox = bird.size / 2.5;
+                const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
+                return (
+                    bird.x + hitBox > pipe.x &&
+                    bird.x - hitBox < pipe.x + pipeWidth &&
+                    (bird.y - hitBox < pipe.height ||
+                    bird.y + hitBox > pipe.height + currentGap)
+                );
+            });
+        }
+
+        function gameOver() {
+            gameStarted = false;
+            finalScoreElement.textContent = score;
+            finalLevelElement.textContent = currentLevel;
+            gameOverScreen.style.display = 'block';
+        }
+
+        function restartGame() {
+            gameOverScreen.style.display = 'none';
+            pipes = [];
+            score = 0;
+            currentLevel = 1;
+            bird.y = canvas.height / 2;
+            bird.velocity = 0;
+            scoreElement.textContent = '0';
+            levelElement.textContent = 'Level 1';
+            difficulty = DIFFICULTY_SETTINGS[difficultySelect.value];
+            gameStarted = true;
+            startMessage.style.display = 'none';
+            lastTime = performance.now();
+        }
+
+        function draw() {
+            drawBackground();
+            drawPipes();
+            drawBird();
+        }
+
+        function gameLoop(currentTime) {
+            update(currentTime);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function jump(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            
+            if (!gameStarted && difficultySelect.value) {
+                gameStarted = true;
+                startMessage.style.display = 'none';
+            }
+
+            if (gameStarted) {
+                bird.velocity = difficulty.jumpForce;
+            }
+        }
+
+
+        // Update the UI controls section with touch events
+        function handlePointerEvent(e) {
+            e.preventDefault();
+            const element = e.currentTarget;
+            
+            // Add visual feedback
+            element.style.opacity = "0.7";
+            setTimeout(() => element.style.opacity = "1", 150);
+
+            if (element.id === 'restartButton') {
+                restartGame();
+            }
+        }
+
+        // Prevent default touch behaviors
+        document.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        
+        // Game controls
+        canvas.addEventListener('touchstart', jump, { passive: false });
+        canvas.addEventListener('click', jump);
+        
+        // UI controls with touch support
+        restartButton.addEventListener('touchstart', handlePointerEvent, { passive: false });
+        restartButton.addEventListener('click', handlePointerEvent);
+        
+        difficultySelect.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: false });
+        
+        difficultySelect.addEventListener('change', (e) => {
+            e.stopPropagation();
+            init();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+
+        // Handle resize events
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 100);
+        });
+
+        window.addEventListener('orientationchange', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 200);
+        });
+
+        // Initialize game
+        init();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
