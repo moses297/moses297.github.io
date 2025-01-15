@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy OX</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="scoreContainer" class="ui-element">
+            <div id="score">0</div>
+            <div id="level">Level 1</div>
+        </div>
+        <div id="startMessage" class="ui-element">
+            <h1>Flappy OX</h1>
+            <p>Click space or touch to start</p>
+        </div>
+        <select id="difficultySelect" value="hard">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="extreme">Extreme</option>
+        </select>
+        <div id="gameOver" class="game-over">
+            <h2>Game Over!</h2>
+            <div class="scores">
+                <p>Score: <span id="finalScore">0</span></p>
+                <p>High Score: <span id="highScore">0</span></p>
+                <p>Level: <span id="finalLevel">1</span></p>
+            </div>
+            <div class="promo">
+                <p>OX helps you fix the CVEs that matter most</p>
+                <a href="https://ox.security" target="_blank" class="visit-link">Visit OX</a>
+            </div>
+            <div class="social-share">
+                <p>Follow us on:</p>
+                <a href="https://instagram.com/lifeatox" target="_blank" class="share-link">
+                    <img src="assets/ig.png" alt="Share on Instagram" class="share-icon">
+                </a>
+            </div>
+            <button id="restartButton">Play Again</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

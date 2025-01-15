@@ -1,0 +1,218 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    touch-action: manipulation;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #2D1B4E;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: calc(100vw * 16/9);
+    max-width: 100%;
+    max-height: 100vh;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    border: 4px solid #8B5CF6;
+    border-radius: 8px;
+    background-color: #2D1B4E;
+    touch-action: none;
+}
+
+.ui-element {
+    position: absolute;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    z-index: 10;
+    pointer-events: none;
+}
+
+#scoreContainer {
+    top: 20px;
+    left: 20px;
+}
+
+#score {
+    font-size: max(24px, min(48px, 6vmin));
+    margin-bottom: 5px;
+}
+
+#level {
+    font-size: max(16px, min(24px, 3vmin));
+    color: #A78BFA;
+}
+
+#startMessage {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 90%;
+}
+
+#startMessage h1 {
+    font-size: max(24px, min(42px, 5vmin));
+    margin-bottom: 15px;
+    color: #7941fb;
+    text-shadow: 
+        0 0 8px rgba(7, 3, 15, 0.8),
+        0 0 15px rgba(0, 0, 0, 0.2),
+        3px 3px 5px rgba(0, 0, 0, 0.5);
+}
+#startMessage p {
+    font-size: max(16px, min(24px, 3vmin));
+    line-height: 1.4;
+}
+
+#difficultySelect {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 12px;
+    background-color: #6D28D9;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: max(14px, min(18px, 2.5vmin));
+    cursor: pointer;
+    z-index: 100;
+    pointer-events: auto;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.game-over {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(51, 14, 111, 0.98); /* Made darker */
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    z-index: 100;
+    pointer-events: auto;
+    width: 90%;
+    max-width: 400px;
+    backdrop-filter: blur(4px); /* Added blur effect */
+}
+.game-over h2 {
+    font-size: max(24px, min(36px, 4.5vmin));
+    margin-bottom: 20px;
+}
+
+.game-over .scores {
+    margin-bottom: 25px;
+}
+
+.game-over .scores p {
+    font-size: max(16px, min(24px, 3vmin));
+    margin: 10px 0;
+}
+
+.game-over .promo {
+    background-color: rgba(139, 92, 246, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.game-over .promo p {
+    font-size: max(16px, min(22px, 2.8vmin));
+    margin-bottom: 15px;
+}
+
+.visit-link {
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: #8B5CF6;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: max(14px, min(20px, 2.5vmin));
+    transition: background-color 0.3s;
+}
+
+.visit-link:hover {
+    background-color: #A78BFA;
+}
+
+#restartButton {
+    margin-top: 20px;
+    padding: 12px 30px;
+    background-color: #8B5CF6;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: max(16px, min(22px, 2.8vmin));
+    cursor: pointer;
+    transition: background-color 0.3s;
+    min-height: 44px;
+}
+
+#restartButton:hover {
+    background-color: #A78BFA;
+}
+
+.coin-text {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    transition: opacity 1s, transform 1s;
+}
+
+@media (orientation: landscape) {
+    #gameContainer {
+        width: calc(100vh * 16/9);
+        height: 100vh;
+    }
+}
+
+.social-share {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.social-share p {
+    font-size: max(14px, min(20px, 2.5vmin));
+    margin-bottom: 10px;
+    color: #A78BFA;
+}
+
+.share-link {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.share-link:hover {
+    transform: scale(1.1);
+}
+
+.share-icon {
+    width: max(32px, min(48px, 6vmin));
+    height: max(32px, min(48px, 6vmin));
+    object-fit: contain;
+}
