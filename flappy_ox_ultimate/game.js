@@ -239,6 +239,8 @@ function drawFloatingTexts() {
     });
 }
 
+let collectedCoins = 0;
+
 // Update functions
 function updateCoins() {
     coins.forEach(coin => {
@@ -249,6 +251,7 @@ function updateCoins() {
             const distance = Math.hypot(bird.x - coin.x, bird.y - coin.y);
             if (distance < (bird.size + coin.size) / 2) {
                 coin.collected = true;
+                collectedCoins++; // Increment collected coins counter
                 score += COIN_POINTS;
                 scoreElement.textContent = score;
                 createFloatingText(coin.x, coin.y - coin.size, "fixed!");
@@ -256,7 +259,6 @@ function updateCoins() {
         }
     });
     
-    // Remove off-screen coins
     coins = coins.filter(coin => coin.x + coin.size > 0);
 }
 
@@ -328,6 +330,12 @@ function gameOver() {
     finalScoreElement.textContent = score;
     finalLevelElement.textContent = currentLevel;
     
+    // Update vulnerability count text
+    const vulnerabilityText = document.getElementById('vulnerabilityCount');
+    if (vulnerabilityText) {
+        vulnerabilityText.textContent = `You've fixed ${collectedCoins} vulnerabilities!`;
+    }
+    
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('highScore', highScore);
@@ -336,13 +344,13 @@ function gameOver() {
     
     gameOverScreen.style.display = 'block';
 }
-
 function restartGame() {
     gameOverScreen.style.display = 'none';
     pipes = [];
     coins = [];
     floatingTexts = [];
     score = 0;
+    collectedCoins = 0; // Reset collected coins counter
     currentLevel = 1;
     bird.y = canvas.height / 2;
     bird.velocity = 0;
@@ -397,6 +405,8 @@ function init() {
                       orientation === 'landscape' ? 320 : 280);
     lastTime = performance.now();
     highScoreElement.textContent = highScore;
+    initializeTouchHandlers();
+
 }
 
 function jump(e) {
@@ -472,6 +482,53 @@ window.addEventListener('orientationchange', () => {
         difficulty = DIFFICULTY_SETTINGS[difficultySelect.value][orientation];
     }, 200);
 });
+
+function initializeTouchHandlers() {
+    // Get all interactive elements
+    const shareLink = document.querySelector('.share-link');
+    const visitOxLink = document.querySelector('.visit-link');
+    
+    // Function to handle touch/click for OX link
+    function handleOxLink(e) {
+        e.preventDefault();
+        window.open('https://ox.security', '_blank');
+    }
+
+    // Function to handle touch/click for share link
+    function handleShareLink(e) {
+        e.preventDefault();
+        window.open('https://instagram.com/lifeatox', '_blank');
+    }
+
+    // Function to add visual feedback
+    function addTouchFeedback(element) {
+        element.style.opacity = '0.7';
+        setTimeout(() => element.style.opacity = '1', 150);
+    }
+
+    // Add event listeners for OX link
+    if (visitOxLink) {
+        ['touchstart', 'pointerup', 'click'].forEach(eventType => {
+            visitOxLink.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                addTouchFeedback(visitOxLink);
+                handleOxLink(e);
+            }, { passive: false });
+        });
+    }
+
+    // Add event listeners for share link
+    if (shareLink) {
+        ['touchstart', 'pointerup', 'click'].forEach(eventType => {
+            shareLink.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                addTouchFeedback(shareLink);
+                handleShareLink(e);
+            }, { passive: false });
+        });
+    }
+}
+
 
 // Initialize game
 init();
