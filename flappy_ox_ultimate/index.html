@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flappy OX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -24,24 +27,38 @@
             <option value="extreme">Extreme</option>
         </select>
         <div id="gameOver" class="game-over">
-            <h2>Game Over!</h2>
-            <p id="vulnerabilityCount" class="vulnerability-text">You've fixed 0 vulnerabilities!</p>
-            <div class="scores">
-                <p>Score: <span id="finalScore">0</span></p>
-                <p>High Score: <span id="highScore">0</span></p>
-                <p>Level: <span id="finalLevel">1</span></p>
+            <div class="game-over-content">
+                <div class="logo-container">
+                    <img src="assets/ox-mascot.png" alt="OX Mascot" class="game-over-mascot">
+                </div>
+                <h2 class="pixel-text">GAME OVER</h2>
+                <div class="score-container">
+                    <p class="pixel-text">YOUR SCORE: <span id="finalScore" class="pink-text">0</span></p>
+                    <p class="pixel-text">HIGH SCORE: <span id="highScore" class="orange-text">0</span></p>
+                </div>
+                <div class="share-section">
+                    <p class="pixel-text">SHARE YOUR SCORE ON:</p>
+                    <div class="share-icons">
+                        <a href="#" class="share-icon linkedin">
+                            <img src="assets/ln.png" alt="Share on LinkedIn">
+                        </a>
+                        <a href="#" class="share-icon twitter">
+                            <img src="assets/tw.png" alt="Share on Twitter">
+                        </a>
+                    </div>
+                </div>
+                <div class="message pixel-text">
+                    AWESOME! YOU'VE FIXED <span id="vulnerabilityCount" class="pink-text">0</span> VULNERABILITIES!
+                </div>
+                <p class="info-text pixel-text">
+                    JOIN THE OX PLATFORM TO DISCOVER AND FIX<br>
+                    THE VULNERABILITIES THAT MATTER MOST
+                </p>
+                <div class="button-container">
+                    <button id="restartButton" class="pixel-button pink">PLAY AGAIN</button>
+                    <a href="https://ox.security" target="_blank" class="visit-link pixel-button orange">JOIN OX NOW</a>
+                </div>
             </div>
-            <div class="promo">
-                <p>OX helps you fix the CVEs that matter most</p>
-                <a href="#" class="visit-link button">Visit OX</a>
-            </div>
-            <div class="social-share">
-                <p>Visit us!</p>
-                <a href="#" class="share-link button">
-                    <img src="assets/ig.png" alt="Share on Instagram" class="share-icon">
-                </a>
-            </div>
-            <button id="restartButton" class="button">Play Again</button>
         </div>
     </div>
     <script src="game.js"></script>
