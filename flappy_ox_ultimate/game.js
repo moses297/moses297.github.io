@@ -1,4 +1,4 @@
-// DOM Elements 
+// DOM Elements
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
@@ -7,7 +7,6 @@ const startMessage = document.getElementById('startMessage');
 const difficultySelect = document.getElementById('difficultySelect');
 const gameOverScreen = document.getElementById('gameOver');
 const finalScoreElement = document.getElementById('finalScore');
-const finalLevelElement = document.getElementById('finalLevel');
 const highScoreElement = document.getElementById('highScore');
 const restartButton = document.getElementById('restartButton');
 
@@ -17,19 +16,19 @@ difficultySelect.value = 'easy';
 // Game Constants
 const DIFFICULTY_SETTINGS = {
     easy: {
-        portrait: { gravity: 0.4, jumpForce: -8, pipeSpeed: 3, pipeSpacing: 280 },      // Reduced gravity, increased jump
+        portrait: { gravity: 0.4, jumpForce: -8, pipeSpeed: 3, pipeSpacing: 280 },
         landscape: { gravity: 0.5, jumpForce: -7, pipeSpeed: 3, pipeSpacing: 550 }
     },
     medium: {
-        portrait: { gravity: 0.45, jumpForce: -8.5, pipeSpeed: 3.5, pipeSpacing: 260 }, // Reduced gravity, increased jump
+        portrait: { gravity: 0.45, jumpForce: -8.5, pipeSpeed: 3.5, pipeSpacing: 260 },
         landscape: { gravity: 0.6, jumpForce: -7.5, pipeSpeed: 3.5, pipeSpacing: 520 }
     },
     hard: {
-        portrait: { gravity: 0.5, jumpForce: -9, pipeSpeed: 4.5, pipeSpacing: 240 },    // Reduced gravity, increased jump
+        portrait: { gravity: 0.5, jumpForce: -9, pipeSpeed: 4.5, pipeSpacing: 240 },
         landscape: { gravity: 0.7, jumpForce: -8, pipeSpeed: 4.5, pipeSpacing: 500 }
     },
     extreme: {
-        portrait: { gravity: 0.6, jumpForce: -9.5, pipeSpeed: 5.5, pipeSpacing: 220 },  // Reduced gravity, increased jump
+        portrait: { gravity: 0.6, jumpForce: -9.5, pipeSpeed: 5.5, pipeSpacing: 220 },
         landscape: { gravity: 0.85, jumpForce: -8.5, pipeSpeed: 5.5, pipeSpacing: 480 }
     }
 };
@@ -97,26 +96,25 @@ function resizeCanvas() {
         }
     }
     
-    // Increased gap sizes
     const isLandscape = window.innerWidth > window.innerHeight;
     baseGap = isLandscape ? 
-        Math.min(canvas.height * 0.4, 320) :  // Increased from 0.35, 280
-        Math.min(canvas.height * 0.32, 280);  // Increased from 0.28, 240
+        Math.min(canvas.height * 0.4, 320) :
+        Math.min(canvas.height * 0.32, 280);
 }
+
 // Game objects creation
 function createPipe() {
     const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
     const minHeight = canvas.height * 0.15;
     const maxHeight = canvas.height - currentGap - minHeight;
     const height = Math.random() * (maxHeight - minHeight) + minHeight;
-    const pipeWidth = canvas.width * 0.08; // Match new pipe width
+    const pipeWidth = canvas.width * 0.08;
     
-    // Create coin with 70% probability
     const hasCoin = Math.random() < 0.7;
     if (hasCoin) {
         coins.push({
-            x: canvas.width + pipeWidth/2, // Center coin relative to pipe
-            y: height + currentGap/2, // Center in gap
+            x: canvas.width + pipeWidth/2,
+            y: height + currentGap/2,
             size: Math.min(canvas.width, canvas.height) * 0.09,
             collected: false
         });
@@ -177,22 +175,11 @@ function drawBird() {
         ctx.beginPath();
         ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
         ctx.fill();
-
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(bird.x + bird.size/6, bird.y - bird.size/6, bird.size/7.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = bird.size/20;
-        ctx.beginPath();
-        ctx.arc(bird.x, bird.y + bird.size/6, bird.size/4, 0, Math.PI);
-        ctx.stroke();
     }
 }
 
 function drawPipes() {
-    const pipeWidth = canvas.width * 0.08; // Reduced from 0.1 (making pipes thinner)
+    const pipeWidth = canvas.width * 0.08;
     pipes.forEach(pipe => {
         ctx.fillStyle = colors.pipe;
         ctx.fillRect(pipe.x, 0, pipeWidth, pipe.height);
@@ -247,11 +234,10 @@ function updateCoins() {
         if (!coin.collected) {
             coin.x -= (difficulty.pipeSpeed * canvas.width / 800) * (deltaTime / 16);
             
-            // Check collision with bird
             const distance = Math.hypot(bird.x - coin.x, bird.y - coin.y);
             if (distance < (bird.size + coin.size) / 2) {
                 coin.collected = true;
-                collectedCoins++; // Increment collected coins counter
+                collectedCoins++;
                 score += COIN_POINTS;
                 scoreElement.textContent = score;
                 createFloatingText(coin.x, coin.y - coin.size, "fixed!");
@@ -284,8 +270,7 @@ function update(currentTime) {
             score++;
             scoreElement.textContent = score;
 
-            // Fix level calculation
-            let newLevel = 1; // Start at level 1
+            let newLevel = 1;
             for (let i = 0; i < LEVEL_THRESHOLDS.length; i++) {
                 if (score >= LEVEL_THRESHOLDS[i]) {
                     newLevel = i + 1;
@@ -307,12 +292,13 @@ function update(currentTime) {
         gameOver();
     }
 }
+
 function checkCollisions() {
     if (bird.y + bird.size / 2 > canvas.height || bird.y - bird.size / 2 < 0) {
         return true;
     }
 
-    const pipeWidth = canvas.width * 0.08; // Match new pipe width
+    const pipeWidth = canvas.width * 0.08;
     return pipes.some(pipe => {
         const hitBox = bird.size / 2.5;
         const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
@@ -324,17 +310,14 @@ function checkCollisions() {
         );
     });
 }
+
 // Game state functions
 function gameOver() {
     gameStarted = false;
     finalScoreElement.textContent = score;
-    finalLevelElement.textContent = currentLevel;
     
-    // Update vulnerability count text
-    const vulnerabilityText = document.getElementById('vulnerabilityCount');
-    if (vulnerabilityText) {
-        vulnerabilityText.textContent = `You've fixed ${collectedCoins} vulnerabilities!`;
-    }
+    const vulnerabilityCountElement = document.getElementById('vulnerabilityCount');
+    vulnerabilityCountElement.textContent = collectedCoins;
     
     if (score > highScore) {
         highScore = score;
@@ -343,14 +326,38 @@ function gameOver() {
     highScoreElement.textContent = highScore;
     
     gameOverScreen.style.display = 'block';
+    initializeShareButtons();
 }
+
+// Social sharing functions
+function initializeShareButtons() {
+    const shareText = `I fixed ${collectedCoins} vulnerabilities and scored ${score} points in Flappy OX! Can you beat my score?`;
+    const shareUrl = encodeURIComponent(window.location.href);
+    
+    // LinkedIn sharing
+    const linkedinBtn = document.querySelector('.share-icon.linkedin');
+    linkedinBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}&summary=${encodeURIComponent(shareText)}`;
+        window.open(linkedinUrl, '_blank');
+    });
+    
+    // Twitter sharing
+    const twitterBtn = document.querySelector('.share-icon.twitter');
+    twitterBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
+        window.open(twitterUrl, '_blank');
+    });
+}
+
 function restartGame() {
     gameOverScreen.style.display = 'none';
     pipes = [];
     coins = [];
     floatingTexts = [];
     score = 0;
-    collectedCoins = 0; // Reset collected coins counter
+    collectedCoins = 0;
     currentLevel = 1;
     bird.y = canvas.height / 2;
     bird.velocity = 0;
@@ -365,6 +372,16 @@ function restartGame() {
     lastTime = performance.now();
 }
 
+function handlePointerEvent(e) {
+    e.preventDefault();
+    const element = e.target;
+    
+    if (element.id === 'restartButton' || element.closest('#restartButton')) {
+        element.style.opacity = "0.7";
+        setTimeout(() => element.style.opacity = "1", 150);
+        restartGame();
+    }
+}
 
 function draw() {
     drawBackground();
@@ -397,7 +414,6 @@ function init() {
     startMessage.style.display = 'block';
     gameOverScreen.style.display = 'none';
     
-    // Set difficulty based on orientation
     const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
     difficulty = DIFFICULTY_SETTINGS[difficultySelect.value][orientation];
     
@@ -405,8 +421,6 @@ function init() {
                       orientation === 'landscape' ? 320 : 280);
     lastTime = performance.now();
     highScoreElement.textContent = highScore;
-    initializeTouchHandlers();
-
 }
 
 function jump(e) {
@@ -414,7 +428,6 @@ function jump(e) {
         e.preventDefault();
     }
     
-    // Don't do anything if game over screen is shown
     if (gameOverScreen.style.display === 'block') {
         return;
     }
@@ -426,18 +439,6 @@ function jump(e) {
 
     if (gameStarted) {
         bird.velocity = difficulty.jumpForce;
-    }
-}
-
-function handlePointerEvent(e) {
-    e.preventDefault();
-    const element = e.currentTarget;
-    
-    element.style.opacity = "0.7";
-    setTimeout(() => element.style.opacity = "1", 150);
-
-    if (element.id === 'restartButton') {
-        restartGame();
     }
 }
 
@@ -467,7 +468,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Resize handling
+// Handle difficulty orientation changes
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
@@ -482,53 +483,6 @@ window.addEventListener('orientationchange', () => {
         difficulty = DIFFICULTY_SETTINGS[difficultySelect.value][orientation];
     }, 200);
 });
-
-function initializeTouchHandlers() {
-    // Get all interactive elements
-    const shareLink = document.querySelector('.share-link');
-    const visitOxLink = document.querySelector('.visit-link');
-    
-    // Function to handle touch/click for OX link
-    function handleOxLink(e) {
-        e.preventDefault();
-        window.open('https://ox.security', '_blank');
-    }
-
-    // Function to handle touch/click for share link
-    function handleShareLink(e) {
-        e.preventDefault();
-        window.open('https://instagram.com/lifeatox', '_blank');
-    }
-
-    // Function to add visual feedback
-    function addTouchFeedback(element) {
-        element.style.opacity = '0.7';
-        setTimeout(() => element.style.opacity = '1', 150);
-    }
-
-    // Add event listeners for OX link
-    if (visitOxLink) {
-        ['touchstart', 'pointerup', 'click'].forEach(eventType => {
-            visitOxLink.addEventListener(eventType, (e) => {
-                e.preventDefault();
-                addTouchFeedback(visitOxLink);
-                handleOxLink(e);
-            }, { passive: false });
-        });
-    }
-
-    // Add event listeners for share link
-    if (shareLink) {
-        ['touchstart', 'pointerup', 'click'].forEach(eventType => {
-            shareLink.addEventListener(eventType, (e) => {
-                e.preventDefault();
-                addTouchFeedback(shareLink);
-                handleShareLink(e);
-            }, { passive: false });
-        });
-    }
-}
-
 
 // Initialize game
 init();
