@@ -107,7 +107,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(51, 14, 111, 0.98); /* Made darker */
+    background-color: rgba(51, 14, 111, 0.75); /* Made darker */
     padding: 30px;
     border-radius: 15px;
     text-align: center;
@@ -117,6 +117,7 @@ body {
     max-width: 400px;
     backdrop-filter: blur(4px); /* Added blur effect */
 }
+
 .game-over h2 {
     font-size: max(24px, min(36px, 4.5vmin));
     margin-bottom: 20px;
@@ -143,8 +144,23 @@ body {
     margin-bottom: 15px;
 }
 
+.promo {
+    background-color: rgba(139, 92, 246, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: center; /* Ensure all content is centered */
+}
+
+.promo p {
+    font-size: max(16px, min(22px, 2.8vmin));
+    margin-bottom: 15px;
+}
+
 .visit-link {
-    display: inline-block;
+    display: inline-flex;           /* Change to inline-flex */
+    align-items: center;            /* Center vertically */
+    justify-content: center;        /* Center horizontally */
     padding: 10px 25px;
     background-color: #8B5CF6;
     color: white;
@@ -152,6 +168,9 @@ body {
     border-radius: 5px;
     font-size: max(14px, min(20px, 2.5vmin));
     transition: background-color 0.3s;
+    min-height: 48px;               /* Maintain minimum touch target */
+    min-width: 120px;              /* Ensure consistent width */
+    text-align: center;            /* Center text */
 }
 
 .visit-link:hover {
@@ -215,4 +234,68 @@ body {
     width: max(32px, min(48px, 6vmin));
     height: max(32px, min(48px, 6vmin));
     object-fit: contain;
+}
+
+.vulnerability-text {
+    font-size: max(18px, min(28px, 3.5vmin));
+    color: #A78BFA;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.button,
+.visit-link {
+    display: inline-flex;           /* Use flex for all buttons */
+    align-items: center;            /* Center vertically */
+    justify-content: center;        /* Center horizontally */
+    padding: 12px 30px;
+    background-color: #8B5CF6;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: max(16px, min(22px, 2.8vmin));
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.15s;
+    min-height: 48px;
+    min-width: 120px;
+    text-decoration: none;
+    line-height: 1;                /* Add this to control text alignment */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+}
+
+
+.button:hover,
+.visit-link:hover {
+    background-color: #9f84ed;
+}
+
+.button:active,
+.visit-link:active {
+    opacity: 0.7;
+}
+
+.share-link.button {
+    background-color: transparent;
+    padding: 8px;
+    min-width: 48px;
+}
+
+.share-link.button:hover {
+    background-color: transparent;
+    opacity: 0.8;
+}
+
+.share-icon {
+    width: max(32px, min(48px, 6vmin));
+    height: max(32px, min(48px, 6vmin));
+    object-fit: contain;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .share-link.button {
+        padding: 12px;
+    }
 }
