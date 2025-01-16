@@ -487,13 +487,7 @@ function gameOver() {
 }
 
 function initializeShareButtons() {
-    // Format vulnerability text with proper pluralization
-    const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
-    const pointText = score === 1 ? "point" : "points";
-    const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
     const shareUrl = encodeURIComponent(window.location.href);
-
-
     
     // Handle all interactive buttons (share buttons and Join OX button)
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
@@ -504,6 +498,11 @@ function initializeShareButtons() {
                 if (button.classList.contains('visit-link')) {
                     window.open('https://ox.security', '_blank');
                 } else {
+                    // Generate share text at the time of sharing
+                    const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
+                    const pointText = score === 1 ? "point" : "points";
+                    const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
+                    
                     const platform = button.classList.contains('linkedin') ? 'linkedin' : 'twitter';
                     const url = platform === 'linkedin' 
                         ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)} ${shareUrl}`
