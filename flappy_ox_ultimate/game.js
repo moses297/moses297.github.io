@@ -489,9 +489,16 @@ function gameOver() {
 function initializeShareButtons() {
     const shareUrl = encodeURIComponent(window.location.href);
     
-    // Handle all interactive buttons (share buttons and Join OX button)
+    // Remove existing event listeners first
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
     buttons.forEach(button => {
+        // Clone the button to remove all event listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+    });
+    
+    // Add new event listeners with fresh references to the current values
+    document.querySelectorAll('.share-icon, .visit-link').forEach(button => {
         ['click', 'touchstart'].forEach(eventType => {
             button.addEventListener(eventType, (e) => {
                 e.preventDefault();
