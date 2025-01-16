@@ -13,7 +13,110 @@ const backgroundMusic = document.getElementById('backgroundMusic');
 const coinSound = document.getElementById('coinSound');
 const muteButton = document.getElementById('muteButton');
 const muteIcon = document.getElementById('muteIcon');
-let isMuted = localStorage.getItem('isMuted') === 'false';
+let isMuted = localStorage.getItem('isMuted') === 'true';
+let assetsLoaded = false;
+let loadedAssets = 0;
+const totalAssets = 5; // backgroundImg, oxMascot, coinImg, backgroundMusic, coinSound
+let originalDifficulty = null;
+
+
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (backgroundMusic) {
+            backgroundMusic.pause();
+        }
+    } else {
+        if (backgroundMusic && gameStarted && !isMuted) {
+            backgroundMusic.play().catch(console.error);
+        }
+    }
+});
+
+function loadAssets() {
+    const assets = [
+        { element: backgroundImg, src: 'assets/background.png' },
+        { element: oxMascot, src: 'assets/ox-mascot.png' },
+        { element: coinImg, src: 'assets/coin.png' },
+        { element: backgroundMusic, src: 'assets/flappy_music.mp3' },
+        { element: coinSound, src: 'assets/flappy_coin.mp3' }
+    ];
+
+    assets.forEach(asset => {
+        const isAudio = asset.element instanceof HTMLAudioElement;
+        
+        // Handle already loaded assets
+        if (!isAudio && asset.element.complete && asset.element.naturalWidth !== 0) {
+            loadedAssets++;
+            updateLoadingStatus();
+            return;
+        }
+        
+        if (isAudio) {
+            // For audio elements
+            const handleAudioLoad = () => {
+                loadedAssets++;
+                updateLoadingStatus();
+                asset.element.removeEventListener('canplaythrough', handleAudioLoad);
+            };
+            
+            asset.element.addEventListener('canplaythrough', handleAudioLoad);
+            
+            // Fallback for cached audio
+            if (asset.element.readyState >= 4) {
+                handleAudioLoad();
+            }
+        } else {
+            // For image elements
+            const handleImageLoad = () => {
+                loadedAssets++;
+                updateLoadingStatus();
+                asset.element.removeEventListener('load', handleImageLoad);
+            };
+            
+            asset.element.addEventListener('load', handleImageLoad);
+            asset.element.src = asset.src;
+        }
+    });
+    
+    // Fallback in case assets are cached
+    setTimeout(() => {
+        if (loadedAssets < totalAssets) {
+            console.log('Some assets might be cached, forcing load completion');
+            loadedAssets = totalAssets;
+            updateLoadingStatus();
+        }
+    }, 3000);
+}
+
+function updateLoadingStatus() {
+    if (loadedAssets === totalAssets) {
+        assetsLoaded = true;
+        startMessage.style.display = 'block';
+        document.getElementById('loadingMessage').style.display = 'none';
+    }
+}
+
+function updateLoadingStatus() {
+    const progress = (loadedAssets / totalAssets) * 100;
+    const progressBar = document.querySelector('.loading-bar-fill');
+    const progressText = document.querySelector('.loading-progress');
+    
+    if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+    }
+    if (progressText) {
+        progressText.textContent = `${Math.round(progress)}%`;
+    }
+
+    if (loadedAssets === totalAssets) {
+        assetsLoaded = true;
+        setTimeout(() => {
+            startMessage.style.display = 'block';
+            document.getElementById('loadingMessage').style.display = 'none';
+        }, 500); // Small delay to show completed loading bar
+    }
+}
 
 function initAudio() {
     backgroundMusic.volume = 0.5;
@@ -48,20 +151,20 @@ difficultySelect.value = 'easy';
 // Game Constants
 const DIFFICULTY_SETTINGS = {
     easy: {
-        portrait: { gravity: 0.4, jumpForce: -8, pipeSpeed: 3, pipeSpacing: 280 },
-        landscape: { gravity: 0.5, jumpForce: -7, pipeSpeed: 3, pipeSpacing: 550 }
+        portrait: { gravity: 0.4, jumpForce: -8, pipeSpeed: 3, pipeSpacing: 275 },
+        landscape: { gravity: 0.4, jumpForce: -8, pipeSpeed: 2.5, pipeSpacing: 770 }
     },
     medium: {
         portrait: { gravity: 0.45, jumpForce: -8.5, pipeSpeed: 3.5, pipeSpacing: 260 },
-        landscape: { gravity: 0.6, jumpForce: -7.5, pipeSpeed: 3.5, pipeSpacing: 520 }
+        landscape: { gravity: 0.6, jumpForce: -7.5, pipeSpeed: 3.5, pipeSpacing: 720 }
     },
     hard: {
         portrait: { gravity: 0.5, jumpForce: -9, pipeSpeed: 4.5, pipeSpacing: 240 },
-        landscape: { gravity: 0.7, jumpForce: -8, pipeSpeed: 4.5, pipeSpacing: 500 }
+        landscape: { gravity: 0.7, jumpForce: -8, pipeSpeed: 4.5, pipeSpacing: 700 }
     },
     extreme: {
         portrait: { gravity: 0.6, jumpForce: -9.5, pipeSpeed: 5.5, pipeSpacing: 220 },
-        landscape: { gravity: 0.85, jumpForce: -8.5, pipeSpeed: 5.5, pipeSpacing: 480 }
+        landscape: { gravity: 0.75, jumpForce: -7.5, pipeSpeed: 5.5, pipeSpacing: 700 }
     }
 };
 
@@ -133,14 +236,16 @@ function resizeCanvas() {
     baseGap = isLandscape ? 
         Math.min(canvas.height * 0.4, 320) :
         Math.min(canvas.height * 0.32, 280);
+    console.log(baseGap)
 }
 
 // Game objects creation
 function createPipe() {
     const currentGap = baseGap - (currentLevel - 1) * PIPE_GAP_DECREASE;
-    const minHeight = canvas.height * 0.15;
+    const minHeight = canvas.height * 0.55;
     const maxHeight = canvas.height - currentGap - minHeight;
     const height = Math.random() * (maxHeight - minHeight) + minHeight;
+    console.log(height)
     const pipeWidth = canvas.width * 0.08;
     
     const hasCoin = Math.random() < 0.7;
@@ -410,11 +515,14 @@ function restartGame() {
     levelElement.textContent = 'Level 1';
     
     const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-    difficulty = DIFFICULTY_SETTINGS[difficultySelect.value][orientation];
+    difficulty = { ...DIFFICULTY_SETTINGS[difficultySelect.value][orientation] }; // Reset to initial difficulty
     
     gameStarted = true;
     startMessage.style.display = 'none';
     lastTime = performance.now();
+    
+    // Play background music on restart
+    playBackgroundMusic();
 }
 
 function handlePointerEvent(e) {
@@ -445,6 +553,8 @@ function gameLoop(currentTime) {
 function init() {
     resizeCanvas();
     initAudio();
+    loadAssets();
+    
     bird.x = canvas.width * 0.25;
     bird.y = canvas.height / 2;
     bird.velocity = 0;
@@ -457,11 +567,13 @@ function init() {
     scoreElement.textContent = score;
     levelElement.textContent = `Level ${currentLevel}`;
     gameStarted = false;
-    startMessage.style.display = 'block';
+    
+    startMessage.style.display = 'none'; // Hide start message until assets are loaded
     gameOverScreen.style.display = 'none';
     
     const orientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
     difficulty = DIFFICULTY_SETTINGS[difficultySelect.value][orientation];
+    originalDifficulty = { ...difficulty }; // Store original difficulty settings
     
     baseGap = Math.min(canvas.height * (orientation === 'landscape' ? 0.4 : 0.32), 
                       orientation === 'landscape' ? 320 : 280);
@@ -469,26 +581,80 @@ function init() {
     highScoreElement.textContent = highScore;
 }
 
+// Add at the top with other game state variables
+let isFirstTimePlayingGame = true;
+let firstTouchOccurred = false;
+let secondTouchOccurred = false;
+
 function jump(e) {
     if (e) {
         e.preventDefault();
     }
     
-    if (gameOverScreen.style.display === 'block') {
+    if (!assetsLoaded || gameOverScreen.style.display === 'block') {
         return;
     }
-    
+    if (firstTouchOccurred && !secondTouchOccurred) {
+        playBackgroundMusic();
+        secondTouchOccurred = true;
+    } 
+
     if (!gameStarted && difficultySelect.value) {
-        gameStarted = true;
-        startMessage.style.display = 'none';
-        backgroundMusic.play().catch(() => console.log('Autoplay prevented'));
+        if (isFirstTimePlayingGame) {
+            if (!firstTouchOccurred) {
+                console.log("first touch")
+                firstTouchOccurred = true;
+                gameStarted = true;
+                startMessage.style.display = 'none';
+                playBackgroundMusic();
+            } else {
+                console.log("2nd touch touch")
+                
+                // Second touch - start the music and mark first game as played
+                isFirstTimePlayingGame = false;
+                playBackgroundMusic();
+            }
+        } else {
+            console.log("other touch")
+            // Not first time playing - start game and music immediately
+            gameStarted = true;
+            startMessage.style.display = 'none';
+            playBackgroundMusic();
+        }
     }
+
+    
 
     if (gameStarted) {
         bird.velocity = difficulty.jumpForce;
     }
 }
 
+function playBackgroundMusic() {
+    console.log("trying to play background music")
+    if (!isMuted && backgroundMusic) {
+        // Only start music if it's not already playing
+        if (backgroundMusic.paused) {
+            const playPromise = backgroundMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.catch((error) => {
+                    if (error.name === "NotAllowedError") {
+                        // If autoplay was prevented, add a one-time touch listener
+                        const startAudio = () => {
+                            backgroundMusic.play().catch(console.error);
+                            document.removeEventListener('touchstart', startAudio);
+                            document.removeEventListener('click', startAudio);
+                        };
+                        document.addEventListener('touchstart', startAudio);
+                        document.addEventListener('click', startAudio);
+                    } else {
+                        console.log('Error playing background music:', error);
+                    }
+                });
+            }
+        }
+    }
+}
 // Event Listeners
 document.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
 document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
