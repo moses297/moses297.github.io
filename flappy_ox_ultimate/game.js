@@ -499,7 +499,7 @@ function initializeShareButtons() {
                 } else {
                     const platform = button.classList.contains('linkedin') ? 'linkedin' : 'twitter';
                     const url = platform === 'linkedin' 
-                        ? `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}&summary=${encodeURIComponent(shareText)}`
+                        ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)} ${shareUrl}`
                         : `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
                     window.open(url, '_blank');
                 }
