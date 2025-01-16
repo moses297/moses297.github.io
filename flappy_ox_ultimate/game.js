@@ -341,8 +341,15 @@ function drawPipes() {
 function drawCoins() {
     coins.forEach(coin => {
         if (!coin.collected && coinImg.complete) {
-            ctx.drawImage(coinImg, coin.x - coin.size/2, coin.y - coin.size/2, 
-                         coin.size, coin.size);
+            // Enable image smoothing
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            ctx.drawImage(coinImg, 
+                coin.x - coin.size/2, 
+                coin.y - coin.size/2, 
+                coin.size, 
+                coin.size);
         }
     });
 }
