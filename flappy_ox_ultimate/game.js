@@ -469,7 +469,9 @@ function gameOver() {
     
     const vulnerabilityMessage = document.getElementById('vulnerabilityMessage');
     if (collectedCoins === 0) {
-        vulnerabilityMessage.textContent = "OH NO! YOU DIDN'T FIX ANY VULNERABILITY!";
+        vulnerabilityMessage.textContent = "OH NO! YOU DIDN'T FIX ANY VULNERABILITIES!";
+    } else if (collectedCoins === 1) {
+        vulnerabilityMessage.innerHTML = `AWESOME! YOU'VE FIXED <span id="vulnerabilityCount" class="pink-text">1</span> VULNERABILITY!`;
     } else {
         vulnerabilityMessage.innerHTML = `AWESOME! YOU'VE FIXED <span id="vulnerabilityCount" class="pink-text">${collectedCoins}</span> VULNERABILITIES!`;
     }
@@ -485,8 +487,13 @@ function gameOver() {
 }
 
 function initializeShareButtons() {
-    const shareText = `I fixed ${collectedCoins} vulnerabilities and scored ${score} points in Flappy OX! Can you beat my score?`;
+    // Format vulnerability text with proper pluralization
+    const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
+    const pointText = score === 1 ? "point" : "points";
+    const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
     const shareUrl = encodeURIComponent(window.location.href);
+
+
     
     // Handle all interactive buttons (share buttons and Join OX button)
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
