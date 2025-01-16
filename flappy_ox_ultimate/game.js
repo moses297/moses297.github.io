@@ -9,6 +9,38 @@ const gameOverScreen = document.getElementById('gameOver');
 const finalScoreElement = document.getElementById('finalScore');
 const highScoreElement = document.getElementById('highScore');
 const restartButton = document.getElementById('restartButton');
+const backgroundMusic = document.getElementById('backgroundMusic');
+const coinSound = document.getElementById('coinSound');
+const muteButton = document.getElementById('muteButton');
+const muteIcon = document.getElementById('muteIcon');
+let isMuted = localStorage.getItem('isMuted') === 'false';
+
+function initAudio() {
+    backgroundMusic.volume = 0.5;
+    coinSound.volume = 0.6;
+    
+    updateMuteState();
+    
+    muteButton.addEventListener('click', handleMute);
+    muteButton.addEventListener('touchstart', handleMute, { passive: false });
+}
+
+
+function handleMute(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    isMuted = !isMuted;
+    localStorage.setItem('isMuted', isMuted);
+    updateMuteState();
+}
+
+function updateMuteState() {
+    muteIcon.src = isMuted ? 'assets/mute.png' : 'assets/unmute.png';
+    backgroundMusic.muted = isMuted;
+    coinSound.muted = isMuted;
+}
 
 // Set initial difficulty
 difficultySelect.value = 'easy';
@@ -50,6 +82,7 @@ let lastTime = 0;
 let deltaTime = 0;
 let coins = [];
 let floatingTexts = [];
+
 
 // Bird object
 let bird = {
@@ -241,6 +274,12 @@ function updateCoins() {
                 score += COIN_POINTS;
                 scoreElement.textContent = score;
                 createFloatingText(coin.x, coin.y - coin.size, "fixed!");
+                
+                // Play coin sound
+                if (!isMuted) {
+                    coinSound.currentTime = 0;
+                    coinSound.play().catch(console.error);
+                }
             }
         }
     });
@@ -316,8 +355,12 @@ function gameOver() {
     gameStarted = false;
     finalScoreElement.textContent = score;
     
-    const vulnerabilityCountElement = document.getElementById('vulnerabilityCount');
-    vulnerabilityCountElement.textContent = collectedCoins;
+    const vulnerabilityMessage = document.getElementById('vulnerabilityMessage');
+    if (collectedCoins === 0) {
+        vulnerabilityMessage.textContent = "OH NO! YOU DIDN'T FIX ANY VULNERABILITY!";
+    } else {
+        vulnerabilityMessage.innerHTML = `AWESOME! YOU'VE FIXED <span id="vulnerabilityCount" class="pink-text">${collectedCoins}</span> VULNERABILITIES!`;
+    }
     
     if (score > highScore) {
         highScore = score;
@@ -329,25 +372,27 @@ function gameOver() {
     initializeShareButtons();
 }
 
-// Social sharing functions
 function initializeShareButtons() {
     const shareText = `I fixed ${collectedCoins} vulnerabilities and scored ${score} points in Flappy OX! Can you beat my score?`;
     const shareUrl = encodeURIComponent(window.location.href);
     
-    // LinkedIn sharing
-    const linkedinBtn = document.querySelector('.share-icon.linkedin');
-    linkedinBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}&summary=${encodeURIComponent(shareText)}`;
-        window.open(linkedinUrl, '_blank');
-    });
-    
-    // Twitter sharing
-    const twitterBtn = document.querySelector('.share-icon.twitter');
-    twitterBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
-        window.open(twitterUrl, '_blank');
+    // Handle all interactive buttons (share buttons and Join OX button)
+    const buttons = document.querySelectorAll('.share-icon, .visit-link');
+    buttons.forEach(button => {
+        ['click', 'touchstart'].forEach(eventType => {
+            button.addEventListener(eventType, (e) => {
+                e.preventDefault();
+                if (button.classList.contains('visit-link')) {
+                    window.open('https://ox.security', '_blank');
+                } else {
+                    const platform = button.classList.contains('linkedin') ? 'linkedin' : 'twitter';
+                    const url = platform === 'linkedin' 
+                        ? `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}&summary=${encodeURIComponent(shareText)}`
+                        : `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
+                    window.open(url, '_blank');
+                }
+            }, { passive: false });
+        });
     });
 }
 
@@ -399,6 +444,7 @@ function gameLoop(currentTime) {
 
 function init() {
     resizeCanvas();
+    initAudio();
     bird.x = canvas.width * 0.25;
     bird.y = canvas.height / 2;
     bird.velocity = 0;
@@ -435,6 +481,7 @@ function jump(e) {
     if (!gameStarted && difficultySelect.value) {
         gameStarted = true;
         startMessage.style.display = 'none';
+        backgroundMusic.play().catch(() => console.log('Autoplay prevented'));
     }
 
     if (gameStarted) {

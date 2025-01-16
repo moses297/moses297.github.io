@@ -22,8 +22,8 @@ body {
 }
 
 @font-face {
-    font-family: 'Press Start 2P';
-    src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    font-family: 'Chakra Petch', sans-serif;
+    src: url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap');
 }
 
 #gameContainer {
@@ -143,10 +143,11 @@ body {
 }
 
 .pixel-text {
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Chakra Petch', sans-serif;
     text-transform: uppercase;
     letter-spacing: 1px;
-    line-height: 1.5;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 h2.pixel-text {
@@ -239,7 +240,7 @@ h2.pixel-text {
 }
 
 .pixel-button {
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Chakra Petch', sans-serif;
     font-size: 20px;
     padding: 16px 32px;
     border: none;
@@ -265,9 +266,9 @@ h2.pixel-text {
 }
 
 .pixel-button.orange {
-    background: linear-gradient(135deg, #FFA500, #FF8C00);
-    color: white;
-    border: 2px solid #FFA500;
+    background: linear-gradient(135deg, #f9b085, #ff7d00);
+    color: #fff1f1;
+    border: 2px solid #f5cdff;
 }
 
 .pixel-button:hover {
@@ -361,4 +362,80 @@ h2.pixel-text {
     to {
         opacity: 1;
     }
+}
+
+#muteContainer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.mute-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mute-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.mute-button:active {
+    transform: scale(0.95);
+}
+
+.mute-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: invert(1);
+}
+
+.game-over {
+    z-index: 800;
+}
+.visit-link {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.visit-link:active {
+    transform: scale(0.95) translateY(1px);
+}
+
+#muteContainer {
+    position: absolute;
+    top: 120px;  /* Move it further down, below both score and level */
+    left: 20px;  /* Keep aligned with score/level on the left */
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.mute-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
