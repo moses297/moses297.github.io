@@ -22,7 +22,7 @@ let originalDifficulty = null;
 
 
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
+    if (document.hidden) { 
         if (backgroundMusic) {
             backgroundMusic.pause();
         }
