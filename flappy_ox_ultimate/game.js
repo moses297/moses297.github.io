@@ -511,15 +511,14 @@ function initializeShareButtons() {
                     const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
                     
                     if (button.classList.contains('linkedin')) {
-                        // Share for LinkedIn
-                        const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+                        const linkedinShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)} ${shareUrl}`;
                         
                         // Check if the user is on mobile
                         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
                         if (isMobile) {
-                            // Open LinkedIn app intent
-                            window.location.href = `linkedin://share?text=${encodeURIComponent(shareText + " " + window.location.href)}`;
+                            // Try to open LinkedIn app
+                            window.location.href = `linkedin://share?text=${encodeURIComponent(shareText)} ${window.location.href}`;
 
                             // Fallback to LinkedIn web share
                             setTimeout(() => {
@@ -539,7 +538,6 @@ function initializeShareButtons() {
         });
     });
 }
-
 
 function restartGame() {
     gameOverScreen.style.display = 'none';
