@@ -488,57 +488,58 @@ function gameOver() {
 
 function initializeShareButtons() {
     const shareUrl = encodeURIComponent(window.location.href);
-    
-    // Remove existing event listeners first
+
+    // Remove existing event listeners by replacing buttons
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
     buttons.forEach(button => {
-        // Clone the button to remove all event listeners
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
     });
-    
-    // Add new event listeners with fresh references to the current values
+
+    // Add new event listeners
     document.querySelectorAll('.share-icon, .visit-link').forEach(button => {
         ['click', 'touchstart'].forEach(eventType => {
             button.addEventListener(eventType, (e) => {
                 e.preventDefault();
-                
+
                 if (button.classList.contains('visit-link')) {
                     window.open('https://ox.security', '_blank');
                 } else {
-                    // Generate share text at the time of sharing
+                    // Generate dynamic share text
                     const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
                     const pointText = score === 1 ? "point" : "points";
                     const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
                     
                     if (button.classList.contains('linkedin')) {
-                        // Full text including the URL for mobile app sharing
-                        const fullShareText = encodeURIComponent(shareText + " " + window.location.href);
+                        // Share for LinkedIn
+                        const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
                         
-                        // Check if mobile device
+                        // Check if the user is on mobile
                         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                        
+
                         if (isMobile) {
-                            // Try to open LinkedIn app
-                            window.location.href = `linkedin://share?text=${fullShareText}`;
-                            
-                            // Fallback to web version after timeout
+                            // Open LinkedIn app intent
+                            window.location.href = `linkedin://share?text=${encodeURIComponent(shareText + " " + window.location.href)}`;
+
+                            // Fallback to LinkedIn web share
                             setTimeout(() => {
-                                window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+                                window.open(linkedinShareUrl, '_blank');
                             }, 1000);
                         } else {
-                            // Desktop web share
-                            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank');
+                            // Open LinkedIn share page for desktop
+                            window.open(linkedinShareUrl, '_blank');
                         }
                     } else {
-                        // Twitter sharing remains the same
-                        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`, '_blank');
+                        // Share for Twitter
+                        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
+                        window.open(twitterShareUrl, '_blank');
                     }
                 }
             }, { passive: false });
         });
     });
 }
+
 
 function restartGame() {
     gameOverScreen.style.display = 'none';
