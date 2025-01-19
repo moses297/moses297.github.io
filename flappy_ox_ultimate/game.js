@@ -502,6 +502,7 @@ function initializeShareButtons() {
         ['click', 'touchstart'].forEach(eventType => {
             button.addEventListener(eventType, (e) => {
                 e.preventDefault();
+                
                 if (button.classList.contains('visit-link')) {
                     window.open('https://ox.security', '_blank');
                 } else {
@@ -510,11 +511,29 @@ function initializeShareButtons() {
                     const pointText = score === 1 ? "point" : "points";
                     const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
                     
-                    const platform = button.classList.contains('linkedin') ? 'linkedin' : 'twitter';
-                    const url = platform === 'linkedin' 
-                        ? `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)} ${shareUrl}`
-                        : `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
-                    window.open(url, '_blank');
+                    if (button.classList.contains('linkedin')) {
+                        // Full text including the URL for mobile app sharing
+                        const fullShareText = encodeURIComponent(shareText + " " + window.location.href);
+                        
+                        // Check if mobile device
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        
+                        if (isMobile) {
+                            // Try to open LinkedIn app
+                            window.location.href = `linkedin://share?text=${fullShareText}`;
+                            
+                            // Fallback to web version after timeout
+                            setTimeout(() => {
+                                window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+                            }, 1000);
+                        } else {
+                            // Desktop web share
+                            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank');
+                        }
+                    } else {
+                        // Twitter sharing remains the same
+                        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`, '_blank');
+                    }
                 }
             }, { passive: false });
         });
