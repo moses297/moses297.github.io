@@ -488,77 +488,44 @@ function gameOver() {
 
 function initializeShareButtons() {
     const shareUrl = encodeURIComponent(window.location.href);
-    
-    // Remove existing event listeners by replacing buttons
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
+
     buttons.forEach(button => {
+        // Replace existing event listeners
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
     });
 
-    // Add new event listeners
     document.querySelectorAll('.share-icon, .visit-link').forEach(button => {
-        button.addEventListener('click', handleShare);
-        
-        // For mobile, prevent default on touchstart to avoid double-firing
-        button.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-    });
+        ['click', 'touchstart'].forEach(eventType => {
+            button.addEventListener(eventType, (e) => {
+                e.preventDefault();
 
-    function handleShare(e) {
-        e.preventDefault();
-        
-        if (this.classList.contains('visit-link')) {
-            window.open('https://ox.security', '_blank');
-            return;
-        }
+                if (button.classList.contains('visit-link')) {
+                    // Ensure the link opens in a new tab
+                    window.open('https://ox.security', '_blank', 'noopener,noreferrer');
+                } else {
+                    // Generate dynamic share text
+                    const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
+                    const pointText = score === 1 ? "point" : "points";
+                    const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
 
-        // Generate dynamic share text
-        const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
-        const pointText = score === 1 ? "point" : "points";
-        const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
-        
-        if (this.classList.contains('linkedin')) {
-            handleLinkedInShare(shareText, shareUrl);
-        } else if (this.classList.contains('twitter')) {
-            handleTwitterShare(shareText, shareUrl);
-        }
-    }
+                    if (button.classList.contains('linkedin')) {
+                        const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText+" ")}${shareUrl}&openExternalBrowser=1`;
 
-    function handleLinkedInShare(shareText, shareUrl) {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        const encodedText = encodeURIComponent(shareText);
-        const encodedUrl = encodeURIComponent(window.location.href);
-
-        if (isMobile) {
-            // Mobile-specific LinkedIn share URL
-            const mobileShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&text=${encodedText}`;
-            
-            // Try to open in LinkedIn app first
-            window.location.href = mobileShareUrl;
-            
-            // Fallback to browser after a short delay if app doesn't open
-            setTimeout(() => {
-                const webShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText} ${encodedUrl}`;
-                const isRedirected = document.hidden || document.webkitHidden;
-                
-                if (!isRedirected) {
-                    window.open(webShareUrl, '_blank');
+                        // Use window.open for mobile and desktop
+                        window.open(linkedinShareUrl, '_blank', 'noopener,noreferrer');
+                    } else {
+                        // Share for Twitter
+                        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
+                        window.open(twitterShareUrl, '_blank', 'noopener,noreferrer');
+                    }
                 }
-            }, 1500);
-        } else {
-            // Desktop LinkedIn share
-            const desktopShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&text=${encodedText}`;
-            window.open(desktopShareUrl, '_blank');
-        }
-    }
-
-    function handleTwitterShare(shareText, shareUrl) {
-        const twitterShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${shareUrl}`;
-        window.open(twitterShareUrl, '_blank');
-    }
+            }, { passive: false });
+        });
+    });
 }
+
 
 
 function restartGame() {
