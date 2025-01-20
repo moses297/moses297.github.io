@@ -518,7 +518,7 @@ function initializeShareButtons() {
 
                         if (isMobile) {
                             // Try to open LinkedIn app
-                            window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText)} ${window.location.href}`;
+                            window.location.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText)}&openExternalBrowser=1 ${window.location.href}`;
 
                             // Fallback to LinkedIn web share
                             setTimeout(() => {
