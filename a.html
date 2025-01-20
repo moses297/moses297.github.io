@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Opening Methods Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .method-container {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #555;
+            margin: 0 0 10px 0;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-blue {
+            background-color: #3b82f6;
+        }
+        .btn-blue:hover {
+            background-color: #2563eb;
+        }
+        .btn-green {
+            background-color: #22c55e;
+        }
+        .btn-green:hover {
+            background-color: #16a34a;
+        }
+        .btn-purple {
+            background-color: #a855f7;
+        }
+        .btn-purple:hover {
+            background-color: #9333ea;
+        }
+        .btn-orange {
+            background-color: #f97316;
+        }
+        .btn-orange:hover {
+            background-color: #ea580c;
+        }
+        a {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+        a:hover {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Different Ways to Open Links</h1>
+        
+        <div class="method-container">
+            <h3>Standard Link</h3>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=this%20test%20https://google.com" 
+               target="_blank" 
+               rel="noopener noreferrer">
+                Open with standard &lt;a&gt; tag
+            </a>
+        </div>
+
+        <div class="method-container">
+            <h3>Window.open()</h3>
+            <button onclick="handleWindowOpen()" class="btn-blue">
+                Open with window.open()
+            </button>
+        </div>
+
+        <div class="method-container">
+            <h3>Window.location.href</h3>
+            <button onclick="handleLocationHref()" class="btn-green">
+                Open with location.href
+            </button>
+        </div>
+
+        <div class="method-container">
+            <h3>Window.location.replace()</h3>
+            <button onclick="handleLocationReplace()" class="btn-purple">
+                Open with location.replace()
+            </button>
+        </div>
+
+        <div class="method-container">
+            <h3>Window.location.assign()</h3>
+            <button onclick="handleLocationAssign()" class="btn-orange">
+                Open with location.assign()
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const linkedinUrl = "https://www.linkedin.com/sharing/share-offsite/?url=this%20test%20https://google.com";
+
+        function handleWindowOpen() {
+            window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        function handleLocationHref() {
+            window.location.href = linkedinUrl;
+        }
+
+        function handleLocationReplace() {
+            window.location.replace(linkedinUrl);
+        }
+
+        function handleLocationAssign() {
+            window.location.assign(linkedinUrl);
+        }
+    </script>
+</body>
+</html>
