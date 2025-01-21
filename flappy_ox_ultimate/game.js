@@ -489,18 +489,19 @@ function gameOver() {
 function initializeShareButtons() {
     const shareUrl = encodeURIComponent(window.location.href);
     const buttons = document.querySelectorAll('.share-icon, .visit-link');
-
     buttons.forEach(button => {
         // Replace existing event listeners
         const newButton = button.cloneNode(true);
         button.parentNode.replaceChild(newButton, button);
     });
-
+    
+    // Detect if device is mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
     document.querySelectorAll('.share-icon, .visit-link').forEach(button => {
         ['click', 'touchstart'].forEach(eventType => {
             button.addEventListener(eventType, (e) => {
                 e.preventDefault();
-
                 if (button.classList.contains('visit-link')) {
                     // Ensure the link opens in a new tab
                     window.open('https://ox.security', '_blank', 'noopener,noreferrer');
@@ -509,11 +510,16 @@ function initializeShareButtons() {
                     const vulnText = collectedCoins === 1 ? "vulnerability" : "vulnerabilities";
                     const pointText = score === 1 ? "point" : "points";
                     const shareText = `I fixed ${collectedCoins} ${vulnText} and scored ${score} ${pointText} in Flappy OX! Can you beat my score?`;
-
+                    
                     if (button.classList.contains('linkedin')) {
-                        const linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText+" ")}${shareUrl}&openExternalBrowser=1`;
-
-                        // Use window.open for mobile and desktop
+                        let linkedinShareUrl;
+                        if (isMobile) {
+                            // Use original mobile URL format
+                            linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText+" ")}${shareUrl}&openExternalBrowser=1`;
+                        } else {
+                            // Use new desktop URL format
+                            linkedinShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText + " " + window.location.href)}`;
+                        }
                         window.open(linkedinShareUrl, '_blank', 'noopener,noreferrer');
                     } else {
                         // Share for Twitter
