@@ -302,17 +302,20 @@ function drawBackground() {
 }
 
 function drawBird() {
-    if (oxMascot.complete && oxMascot.naturalWidth > 0) {
-        ctx.save();
-        ctx.translate(bird.x, bird.y);
-        ctx.rotate(bird.velocity * 0.02);
-        ctx.drawImage(oxMascot, -bird.size/2, -bird.size/2, bird.size, bird.size);
-        ctx.restore();
-    } else {
-        ctx.fillStyle = colors.bird;
-        ctx.beginPath();
-        ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
-        ctx.fill();
+    // Only draw the bird if the game has started
+    if (firstTouchOccurred) {
+        if (oxMascot.complete && oxMascot.naturalWidth > 0) {
+            ctx.save();
+            ctx.translate(bird.x, bird.y);
+            ctx.rotate(bird.velocity * 0.02);
+            ctx.drawImage(oxMascot, -bird.size/2, -bird.size/2, bird.size, bird.size);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = colors.bird;
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, bird.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 }
 
@@ -514,10 +517,10 @@ function initializeShareButtons() {
                     if (button.classList.contains('linkedin')) {
                         let linkedinShareUrl;
                         if (isMobile) {
-                            // Use original mobile URL format
-                            linkedinShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareText+" ")}${shareUrl}&openExternalBrowser=1`;
+                            // Use mobile app URL format
+                            linkedinShareUrl = `linkedin://shareArticle?mini=true&url=${shareUrl}`;
                         } else {
-                            // Use new desktop URL format
+                            // Use desktop URL format
                             linkedinShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText + " " + window.location.href)}`;
                         }
                         window.open(linkedinShareUrl, '_blank', 'noopener,noreferrer');
