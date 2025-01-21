@@ -518,7 +518,7 @@ function initializeShareButtons() {
                         let linkedinShareUrl;
                         if (isMobile) {
                             // Use mobile app URL format
-                            linkedinShareUrl = `https://www.linkedin.com/shareArticle?mini=true&url={shareUrl}`;
+                            linkedinShareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}`;
                         } else {
                             // Use desktop URL format
                             linkedinShareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText + " " + window.location.href)}`;
