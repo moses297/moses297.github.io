@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Trainer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .chord-info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .notes-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .note-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .note-card.active {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .note-degree {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .note-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chord-types {
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .chord-type-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <div>
+            <select id="inputDevice"></select>
+            <button id="startButton">Start Training</button>
+        </div>
+        <div class="chord-types">
+            <label class="chord-type-label">
+                <input type="checkbox" name="chordType" value="major7" checked> Major 7th (Δ7)
+            </label>
+            <label class="chord-type-label">
+                <input type="checkbox" name="chordType" value="minor7"> Minor 7th (m7)
+            </label>
+            <label class="chord-type-label">
+                <input type="checkbox" name="chordType" value="dominant7"> Dominant 7th (7)
+            </label>
+        </div>
+    </div>
+
+    <div class="chord-info">
+        Current Chord: <span id="currentChord">-</span>
+    </div>
+
+    <div class="notes-container" id="chordNotes"></div>
+    <div class="status" id="status">Press Start and allow microphone access</div>
+
+    <script>
+        const chordData = {
+            major7: { intervals: [0, 4, 7, 11], symbol: 'Δ7' },
+            minor7: { intervals: [0, 3, 7, 10], symbol: 'm7' },
+            dominant7: { intervals: [0, 4, 7, 10], symbol: '7' }
+        };
+
+        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const enharmonicMap = {
+            'C#': 'Db', 'Db': 'C#',
+            'D#': 'Eb', 'Eb': 'D#',
+            'F#': 'Gb', 'Gb': 'F#',
+            'G#': 'Ab', 'Ab': 'G#',
+            'A#': 'Bb', 'Bb': 'A#'
+        };
+
+        let audioContext, analyser, mediaStreamSource;
+        let currentChord = null;
+        let currentNotes = [];
+        let currentStep = 0;
+
+        async function initAudio(deviceId) {
+            if (mediaStreamSource) mediaStreamSource.disconnect();
+            
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: { deviceId: deviceId ? { exact: deviceId } : undefined }
+            });
+            
+            audioContext = new AudioContext({ latencyHint: 'interactive' });
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 2048;
+            mediaStreamSource = audioContext.createMediaStreamSource(stream);
+            mediaStreamSource.connect(analyser);
+        }
+
+        function detectPitch() {
+            const buffer = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(buffer);
+            
+            let bestOffset = -1;
+            let bestCorrelation = 0;
+            
+            for (let offset = 20; offset < buffer.length/2; offset++) {
+                let correlation = 0;
+                for (let i = 0; i < buffer.length - offset; i++) {
+                    correlation += Math.abs(buffer[i] - buffer[i + offset]);
+                }
+                correlation = 1 - (correlation / (buffer.length - offset));
+                if (correlation > bestCorrelation) {
+                    bestCorrelation = correlation;
+                    bestOffset = offset;
+                }
+            }
+            
+            return bestOffset > 0 ? audioContext.sampleRate / bestOffset : null;
+        }
+
+        function frequencyToNote(freq) {
+            const A4 = 440;
+            const C0 = A4 * Math.pow(2, -4.75);
+            const semitones = Math.round(12 * Math.log2(freq / C0));
+            const noteIndex = (semitones % 12 + 12) % 12;
+            
+            const note = noteNames[noteIndex];
+            return [note, enharmonicMap[note] || note];
+        }
+
+        function generateChord() {
+            const selectedTypes = Array.from(document.querySelectorAll('[name="chordType"]:checked'))
+                                     .map(checkbox => checkbox.value);
+            
+            if (selectedTypes.length === 0) {
+                alert('Please select at least one chord type!');
+                return;
+            }
+
+            const chordType = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+            const root = Math.floor(Math.random() * 12);
+            const degrees = ['1st', '3rd', '5th', '7th'];
+            
+            currentChord = {
+                type: chordType,
+                root: noteNames[root],
+                symbol: chordData[chordType].symbol
+            };
+            
+            currentNotes = chordData[chordType].intervals.map((offset, index) => ({
+                note: noteNames[(root + offset) % 12],
+                degree: degrees[index]
+            }));
+            
+            currentStep = 0;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentChord').textContent = 
+                `${currentChord.root}${currentChord.symbol}`;
+            
+            const notesContainer = document.getElementById('chordNotes');
+            notesContainer.innerHTML = currentNotes.map((note, index) => `
+                <div class="note-card ${index === currentStep ? 'active' : ''}">
+                    <div class="note-degree">${note.degree}</div>
+                    <div class="note-name">${note.note}</div>
+                </div>
+            `).join('');
+        }
+
+        async function checkNote() {
+            const freq = detectPitch();
+            if (!freq || currentStep >= 4) return;
+
+            const targetNote = currentNotes[currentStep].note;
+            const detectedNotes = frequencyToNote(freq);
+            
+            if (detectedNotes.includes(targetNote) || 
+               (enharmonicMap[targetNote] && detectedNotes.includes(enharmonicMap[targetNote]))) {
+                currentStep++;
+                if (currentStep >= 4) {
+                    generateChord();
+                } else {
+                    updateDisplay();
+                }
+            }
+        }
+
+        async function populateDevices() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const inputSelect = document.getElementById('inputDevice');
+            
+            inputSelect.innerHTML = devices
+                .filter(d => d.kind === 'audioinput')
+                .map(d => `<option value="${d.deviceId}">${d.label || 'Unknown Device'}</option>`)
+                .join('');
+        }
+
+        document.getElementById('startButton').addEventListener('click', async () => {
+            try {
+                const deviceId = document.getElementById('inputDevice').value;
+                await initAudio(deviceId);
+                document.getElementById('status').textContent = 'Listening...';
+                generateChord();
+                setInterval(() => checkNote(), 150);
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+            } catch (error) {
+                alert('Error accessing microphone: ' + error.message);
+            }
+        });
+
+        // Initial setup
+        navigator.mediaDevices.addEventListener('devicechange', populateDevices);
+        populateDevices();
+    </script>
+</body>
+</html>
