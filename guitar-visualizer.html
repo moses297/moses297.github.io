@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Guitar Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        button {
+            background: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <button id="startButton">Start Listening</button>
+        <button id="stopButton">Stop</button>
+    </div>
+    <canvas id="visualizer"></canvas>
+
+    <script>
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        
+        let audioContext, analyser, microphone, animationId;
+        let isListening = false;
+        let time = 0;
+        let particles = [];
+        let visualMode = 0;
+        let modeChangeThreshold = 0.7;
+        let modeChangeTimer = 0;
+        let lastIntensity = 0;
+        let baseHue = 0;
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = 0;
+                this.speedY = 0;
+                this.life = Math.random() * 0.5 + 0.5;
+                this.alpha = Math.random() * 0.3 + 0.2;
+                this.hue = baseHue + Math.random() * 30 - 15;
+            }
+
+            update(audioData, audioInfo, mode) {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const { intensity, bassEnergy, midEnergy, trebleEnergy } = audioInfo;
+                
+                switch(mode) {
+                    case 0: // Inward spiral - faster but less dramatic
+                        const angleToCenter = Math.atan2(centerY - this.y, centerX - this.x);
+                        const distToCenter = Math.hypot(centerX - this.x, centerY - this.y);
+                        const spiralIntensity = intensity * (1 + trebleEnergy); // Reduced multiplier
+                        const spiralOffset = Math.sin(time * 0.01 + distToCenter * 0.005) * Math.PI * 0.25; // Reduced waviness
+                        const spiralSpeed = 6 + (trebleEnergy * 2); // Faster base speed, less affected by frequencies
+                        
+                        this.speedX = (Math.cos(angleToCenter + spiralOffset) * spiralSpeed) * spiralIntensity;
+                        this.speedY = (Math.sin(angleToCenter + spiralOffset) * spiralSpeed) * spiralIntensity;
+                        break;
+                        
+                    case 1: // Upward flow - faster
+                        const flowIntensity = intensity * (1 + midEnergy * 2);
+                        this.speedX = Math.sin(this.y * 0.01 + time * 0.02) * 4 * flowIntensity;
+                        this.speedY = -4 - Math.random() * 3 * flowIntensity;
+                        break;
+                        
+                    case 2: // Chaotic spread - faster
+                        const spreadIntensity = intensity * (1 + bassEnergy * 2);
+                        const angle = time * 0.02 + Math.atan2(this.y - centerY, this.x - centerX);
+                        this.speedX = Math.cos(angle) * 6 * spreadIntensity;
+                        this.speedY = Math.sin(angle) * 6 * spreadIntensity;
+                        break;
+                        break;
+                }
+
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.01 * (1 + intensity);
+
+                if (this.life <= 0 || 
+                    this.x < 0 || this.x > canvas.width || 
+                    this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw(ctx) {
+                const alpha = this.life * this.alpha;
+                ctx.fillStyle = `hsla(${this.hue}, 100%, 50%, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createParticles() {
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 500);
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function analyzeAudio(dataArray) {
+            const bufferLength = dataArray.length;
+            
+            // Calculate overall intensity
+            const sum = dataArray.reduce((acc, val) => acc + val, 0);
+            const intensity = Math.min(sum / (bufferLength * 256) * 4, 1);
+            
+            // Find dominant frequency
+            let maxValue = 0;
+            let maxIndex = 0;
+            let bassEnergy = 0;
+            let midEnergy = 0;
+            let trebleEnergy = 0;
+            
+            // Analyze frequency bands
+            for (let i = 0; i < bufferLength; i++) {
+                if (dataArray[i] > maxValue) {
+                    maxValue = dataArray[i];
+                    maxIndex = i;
+                }
+                
+                // Calculate energy in different frequency bands
+                if (i < bufferLength * 0.33) { // Bass frequencies
+                    bassEnergy += dataArray[i];
+                } else if (i < bufferLength * 0.66) { // Mid frequencies
+                    midEnergy += dataArray[i];
+                } else { // High frequencies
+                    trebleEnergy += dataArray[i];
+                }
+            }
+            
+            // Normalize energies
+            bassEnergy = bassEnergy / (bufferLength * 0.33) / 256;
+            midEnergy = midEnergy / (bufferLength * 0.33) / 256;
+            trebleEnergy = trebleEnergy / (bufferLength * 0.34) / 256;
+            
+            // Enhanced color mapping for guitar frequencies
+            // Create a more diverse color spectrum:
+            // Low frequencies -> deep red/purple (280-360)
+            // Mid frequencies -> blue/green (160-280)
+            // High frequencies -> cyan/magenta (0-160)
+            baseHue = maxIndex < bufferLength * 0.33 ? 
+                280 + (maxIndex / (bufferLength * 0.33)) * 80 : // Deep red/purple range
+                maxIndex < bufferLength * 0.66 ?
+                160 + ((maxIndex - bufferLength * 0.33) / (bufferLength * 0.33)) * 120 : // Blue/green range
+                ((maxIndex - bufferLength * 0.66) / (bufferLength * 0.34)) * 160; // Cyan/magenta range
+            
+            // Detect significant changes in intensity
+            if (Math.abs(intensity - lastIntensity) > 0.3) {
+                modeChangeTimer++;
+                if (modeChangeTimer > 10) {
+                    visualMode = (visualMode + 1) % 3;
+                    modeChangeTimer = 0;
+                }
+            } else {
+                modeChangeTimer = Math.max(0, modeChangeTimer - 1);
+            }
+            
+            lastIntensity = intensity;
+            
+            // Add particles based on intensity and frequencies
+            if (intensity > 0.2) {
+                const particlesToAdd = Math.floor(intensity * 10);
+                for (let i = 0; i < particlesToAdd; i++) {
+                    if (particles.length < 1000) { // Limit maximum particles
+                        particles.push(new Particle());
+                    }
+                }
+            }
+            
+            return {
+                intensity,
+                bassEnergy,
+                midEnergy,
+                trebleEnergy
+            };
+        }
+
+        function render(ctx, intensity) {
+            // Clear with trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw particles
+            ctx.globalCompositeOperation = 'screen';
+            particles.forEach(particle => {
+                particle.update(null, intensity, visualMode);
+                particle.draw(ctx);
+            });
+            
+            // Add subtle bloom
+            ctx.filter = 'blur(4px)';
+            ctx.globalAlpha = 0.2;
+            ctx.drawImage(canvas, 0, 0);
+            ctx.filter = 'none';
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createParticles();
+        }
+
+        async function startListening() {
+            if (isListening) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                isListening = true;
+                animate();
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                alert('Unable to access microphone. Please ensure you have granted microphone permissions.');
+            }
+        }
+
+        function stopListening() {
+            if (!isListening) return;
+            
+            cancelAnimationFrame(animationId);
+            if (microphone) microphone.disconnect();
+            if (audioContext) audioContext.close();
+            isListening = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            time++;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+            
+            const audioInfo = analyzeAudio(dataArray);
+            render(ctx, audioInfo);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        document.getElementById('startButton').addEventListener('click', startListening);
+        document.getElementById('stopButton').addEventListener('click', stopListening);
+    </script>
+</body>
+</html>
