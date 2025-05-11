@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>DOOM in a Favicon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #eee;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .doom-container {
+            position: relative;
+            width: 640px;
+            height: 400px;
+            margin: 20px auto;
+            border: 3px solid #444;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            margin: auto;
+            padding: 0;
+        }
+        #status {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #0f0;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 10;
+        }
+        .controls {
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 8px;
+            max-width: 600px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #ff8833;
+        }
+        .favicon-preview {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .favicon-preview img {
+            width: 64px;
+            height: 64px;
+            border: 1px solid #555;
+            image-rendering: pixelated;
+        }
+        .keyboard-controls {
+            margin: 15px auto;
+            text-align: left;
+            font-size: 14px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        .keyboard-controls ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        .key {
+            display: inline-block;
+            background-color: #444;
+            border: 1px solid #666;
+            border-radius: 3px;
+            padding: 2px 6px;
+            margin: 0 2px;
+            font-family: monospace;
+        }
+        .hidden-canvas-container {
+            display: none;
+        }
+        .info {
+            background-color: #333;
+            border-left: 6px solid #ff6600;
+            padding: 15px;
+            margin: 20px auto;
+            text-align: left;
+            max-width: 600px;
+        }
+        #loading-progress {
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #ff6600;
+            transition: width 0.3s;
+        }
+        #log-box {
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #555;
+            max-width: 600px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            height: 150px;
+            overflow-y: auto;
+        }
+        .debug-controls {
+            margin: 10px auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    </style>
+    <!-- Load js-dos library -->
+    <script src="https://js-dos.com/6.22/current/js-dos.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>DOOM in a Favicon</h1>
+        
+        <div class="info">
+            <p>This page runs DOOM in your browser and uses the game screen as your tab's favicon!</p>
+            <p>The game will start automatically. Click on the game area to give it keyboard focus.</p>
+        </div>
+        
+        <div id="loading-progress">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <div class="doom-container">
+            <canvas id="jsdos"></canvas>
+            <div id="status">Initializing DOOM...</div>
+        </div>
+        
+        <div id="log-box">Loading js-dos...</div>
+        
+        <div class="keyboard-controls">
+            <h3>Controls:</h3>
+            <ul>
+                <li><span class="key">Arrow keys</span> - Move and turn</li>
+                <li><span class="key">Ctrl</span> - Fire</li>
+                <li><span class="key">Alt</span> - Strafe</li>
+                <li><span class="key">Space</span> - Use/Open</li>
+                <li><span class="key">Shift</span> - Run</li>
+                <li><span class="key">1-8</span> - Select weapon</li>
+            </ul>
+        </div>
+        
+        <div class="controls">
+            <button id="fullscreen-btn">Fullscreen</button>
+            <button id="toggle-favicon">Pause Favicon Updates</button>
+            <button id="take-screenshot">Take Favicon Screenshot Now</button>
+            <div style="margin-top: 10px;">
+                Update rate: <span id="update-rate">4</span> FPS
+                <input type="range" id="update-slider" min="1" max="30" value="10">
+            </div>
+            <div style="margin-top: 10px;">
+                Favicon size: <span id="favicon-size">32</span>px
+                <input type="range" id="favicon-size-slider" min="16" max="64" step="8" value="32">
+            </div>
+        </div>
+        
+        <div class="favicon-preview">
+            <p>Current Favicon:</p>
+            <img id="favicon-preview" src="" alt="Current Favicon Preview">
+            <div id="favicon-info">0 updates processed</div>
+        </div>
+        
+        <div class="debug-controls">
+            <button id="show-hidden-canvas">Show/Hide Debug Canvas</button>
+        </div>
+    </div>
+    
+    <!-- Hidden canvas container for processing -->
+    <div class="hidden-canvas-container" id="hidden-canvas-container">
+        <p>Debug Canvas View:</p>
+        <canvas id="hidden-canvas" style="border: 1px solid #666; width: 160px; height: 100px;"></canvas>
+        <canvas id="favicon-canvas-debug" style="border: 1px solid #0f0; width: 128px; height: 128px;"></canvas>
+    </div>
+    
+    <script>
+        // Configuration
+        let frameCount = 0;
+        let updateCount = 0;
+        let isUpdatingFavicon = true;
+        let updateRate = 4; // Updates per second
+        let updateInterval = 1000 / updateRate;
+        let faviconIntervalId = null;
+        let FAVICON_SIZE = 32; // Favicon size
+        const FRAME_SKIP = 3; // Process every nth frame
+        let commandInterface = null;
+        
+        // DOM elements
+        const statusElement = document.getElementById('status');
+        const faviconPreview = document.getElementById('favicon-preview');
+        const faviconInfo = document.getElementById('favicon-info');
+        const toggleFaviconBtn = document.getElementById('toggle-favicon');
+        const screenshotBtn = document.getElementById('take-screenshot');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const updateSlider = document.getElementById('update-slider');
+        const updateRateDisplay = document.getElementById('update-rate');
+        const faviconSizeSlider = document.getElementById('favicon-size-slider');
+        const faviconSizeDisplay = document.getElementById('favicon-size');
+        const hiddenCanvas = document.getElementById('hidden-canvas');
+        const hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
+        const hiddenCanvasContainer = document.getElementById('hidden-canvas-container');
+        const showHiddenCanvasBtn = document.getElementById('show-hidden-canvas');
+        const logBox = document.getElementById('log-box');
+        const progressBar = document.getElementById('progress-bar');
+        const jsdosCanvas = document.getElementById('jsdos');
+        const faviconCanvasDebug = document.getElementById('favicon-canvas-debug');
+        const faviconCtxDebug = faviconCanvasDebug.getContext('2d', { willReadFrequently: true });
+        
+        // Create a favicon canvas
+        const faviconCanvas = document.createElement('canvas');
+        faviconCanvas.width = FAVICON_SIZE;
+        faviconCanvas.height = FAVICON_SIZE;
+        const faviconCtx = faviconCanvas.getContext('2d', { willReadFrequently: true });
+        
+        // Debug logging function
+        function log(message) {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            logBox.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        // Update progress bar
+        function updateProgress(percent) {
+            progressBar.style.width = `${percent}%`;
+        }
+        
+        // Set a placeholder favicon
+        function setPlaceholderFavicon() {
+            // Clear favicon canvas
+            faviconCtx.fillStyle = '#000';
+            faviconCtx.fillRect(0, 0, FAVICON_SIZE, FAVICON_SIZE);
+            
+            // Draw placeholder logo
+            faviconCtx.fillStyle = '#ff0000';
+            faviconCtx.font = `bold ${Math.floor(FAVICON_SIZE * 0.6)}px Arial`;
+            faviconCtx.textAlign = 'center';
+            faviconCtx.textBaseline = 'middle';
+            faviconCtx.fillText('D', FAVICON_SIZE / 2, FAVICON_SIZE / 2);
+            
+            // Also update debug canvas
+            faviconCtxDebug.drawImage(faviconCanvas, 0, 0, FAVICON_SIZE, FAVICON_SIZE, 
+                                     0, 0, faviconCanvasDebug.width, faviconCanvasDebug.height);
+            
+            updateFavicon();
+        }
+        
+        // Initialize placeholder
+        setPlaceholderFavicon();
+        
+        // Update favicon size
+        function updateFaviconSize() {
+            FAVICON_SIZE = parseInt(faviconSizeSlider.value);
+            faviconSizeDisplay.textContent = FAVICON_SIZE;
+            
+            // Update favicon canvas size
+            faviconCanvas.width = FAVICON_SIZE;
+            faviconCanvas.height = FAVICON_SIZE;
+            
+            log(`Favicon size changed to ${FAVICON_SIZE}px`);
+            
+            // Reset the favicon with new size
+            setPlaceholderFavicon();
+        }
+        
+        // Initialize DOOM
+        function initDoom() {
+            log("Initializing DOSBox...");
+            statusElement.textContent = "Initializing DOSBox...";
+            updateProgress(10);
+            
+            // Setup hidden canvas - make it larger to ensure we capture details
+            hiddenCanvas.width = 320;
+            hiddenCanvas.height = 200;
+            
+            // Debug canvas for favicon
+            faviconCanvasDebug.width = 128;
+            faviconCanvasDebug.height = 128;
+            
+            try {
+                // Initialize DOSBox using js-dos
+                Dos(jsdosCanvas, {
+                    wdosboxUrl: "https://js-dos.com/6.22/current/wdosbox.js",
+                    onprogress: function(stage, total, loaded) {
+                        if (total > 0) {
+                            const percent = Math.round((loaded / total) * 100);
+                            const overallPercent = 10 + Math.round(percent * 0.4); // 10-50% range
+                            updateProgress(overallPercent);
+                            statusElement.textContent = `Loading DOSBox: ${percent}%`;
+                            log(`DOSBox loading: ${percent}%`);
+                        }
+                    }
+                }).ready(function(fs, main) {
+                    log("DOSBox ready, preparing to extract DOOM");
+                    statusElement.textContent = "Downloading DOOM...";
+                    updateProgress(50);
+                    
+                    // Extract DOOM files - using the exact URL from successful examples
+                    fs.extract("https://js-dos.com/cdn/upload/DOOM-@evilution.zip").then(function() {
+                        log("DOOM files extracted successfully");
+                        statusElement.textContent = "Starting DOOM...";
+                        updateProgress(80);
+                        
+                        // Critical: Use the exact command format that works
+                        main(["-c", "cd DOOM", "-c", "DOOM.EXE"]).then(function(ci) {
+                            log("DOOM started successfully!");
+                            statusElement.textContent = "DOOM is running! Click to focus.";
+                            commandInterface = ci;
+                            updateProgress(100);
+                            
+                            // Store the canvas dimensions for later use
+                            log(`DOSBox canvas dimensions: ${jsdosCanvas.width}x${jsdosCanvas.height}`);
+                            
+                            // Make the fullscreen button work
+                            fullscreenBtn.onclick = function() {
+                                ci.fullscreen();
+                            };
+                            
+                            // Start favicon updates
+                            startFaviconUpdates();
+                            
+                            // Start frame capture
+                            requestAnimationFrame(captureFrame);
+                        }).catch(function(error) {
+                            log(`ERROR: Failed to start DOOM: ${error}`);
+                            statusElement.textContent = `Error starting DOOM: ${error}`;
+                        });
+                    }).catch(function(error) {
+                        log(`ERROR: Failed to extract DOOM files: ${error}`);
+                        statusElement.textContent = `Error extracting DOOM files: ${error}`;
+                    });
+                });
+            } catch (error) {
+                log(`ERROR: Exception during initialization: ${error}`);
+                statusElement.textContent = `Error initializing DOSBox: ${error.message}`;
+            }
+        }
+        
+        // Capture frame for favicon
+        function captureFrame() {
+            frameCount++;
+            
+            if (jsdosCanvas && frameCount % FRAME_SKIP === 0) {
+                try {
+                    // Get the actual canvas dimensions
+                    const actualWidth = jsdosCanvas.width || 320;
+                    const actualHeight = jsdosCanvas.height || 200;
+                    
+                    // Make sure hidden canvas is the right size
+                    if (hiddenCanvas.width !== actualWidth || hiddenCanvas.height !== actualHeight) {
+                        hiddenCanvas.width = actualWidth;
+                        hiddenCanvas.height = actualHeight;
+                        log(`Updated hidden canvas size to ${actualWidth}x${actualHeight}`);
+                    }
+                    
+                    // Draw the game frame to our hidden canvas - capture full frame
+                    hiddenCtx.drawImage(jsdosCanvas, 0, 0, actualWidth, actualHeight, 
+                                       0, 0, hiddenCanvas.width, hiddenCanvas.height);
+                } catch (error) {
+                    log(`ERROR: Failed to capture frame: ${error}`);
+                }
+            }
+            
+            // Continue the frame capture loop
+            requestAnimationFrame(captureFrame);
+        }
+        
+        // Process favicon update
+        function processFaviconUpdate() {
+            if (!jsdosCanvas) return;
+            
+            try {
+                // Clear the favicon canvas completely first
+                faviconCtx.fillStyle = '#000';
+                faviconCtx.fillRect(0, 0, FAVICON_SIZE, FAVICON_SIZE);
+                
+                // Scale the current game frame to favicon size - ensure we use the full canvas
+                // and properly center the image to use the entire favicon area
+                faviconCtx.drawImage(hiddenCanvas, 0, 0, hiddenCanvas.width, hiddenCanvas.height, 
+                                   0, 0, FAVICON_SIZE, FAVICON_SIZE);
+                
+                // Also update the debug canvas
+                faviconCtxDebug.clearRect(0, 0, faviconCanvasDebug.width, faviconCanvasDebug.height);
+                faviconCtxDebug.drawImage(faviconCanvas, 0, 0, FAVICON_SIZE, FAVICON_SIZE, 
+                                        0, 0, faviconCanvasDebug.width, faviconCanvasDebug.height);
+                
+                // Update the favicon
+                updateFavicon();
+                
+                // Update stats
+                updateCount++;
+                faviconInfo.textContent = `${updateCount} updates processed`;
+            } catch (error) {
+                log(`ERROR: Failed to process favicon update: ${error}`);
+            }
+        }
+        
+        // Update favicon in browser tab
+        function updateFavicon() {
+            try {
+                const dataUrl = faviconCanvas.toDataURL('image/png');
+                
+                // Update actual favicon
+                let link = document.querySelector("link[rel~='icon']");
+                if (!link) {
+                    link = document.createElement('link');
+                    link.rel = 'icon';
+                    document.head.appendChild(link);
+                }
+                link.href = dataUrl;
+                
+                // Update preview
+                faviconPreview.src = dataUrl;
+            } catch (error) {
+                log(`ERROR: Failed to update favicon: ${error}`);
+            }
+        }
+        
+        // Start favicon updates
+        function startFaviconUpdates() {
+            stopFaviconUpdates(); // Clear any existing interval
+            
+            // Update at the specified rate
+            updateInterval = 1000 / updateRate;
+            faviconIntervalId = setInterval(processFaviconUpdate, updateInterval);
+            isUpdatingFavicon = true;
+            toggleFaviconBtn.textContent = 'Pause Favicon Updates';
+            log(`Started favicon updates at ${updateRate} FPS`);
+        }
+        
+        // Stop favicon updates
+        function stopFaviconUpdates() {
+            if (faviconIntervalId) {
+                clearInterval(faviconIntervalId);
+                faviconIntervalId = null;
+            }
+            isUpdatingFavicon = false;
+            toggleFaviconBtn.textContent = 'Resume Favicon Updates';
+            log("Paused favicon updates");
+        }
+        
+        // Event handlers
+        toggleFaviconBtn.addEventListener('click', () => {
+            if (isUpdatingFavicon) {
+                stopFaviconUpdates();
+            } else {
+                startFaviconUpdates();
+            }
+        });
+        
+        screenshotBtn.addEventListener('click', () => {
+            log("Manual favicon capture requested");
+            processFaviconUpdate();
+        });
+        
+        // Update rate slider
+        updateSlider.addEventListener('input', function() {
+            updateRate = parseInt(this.value);
+            updateRateDisplay.textContent = updateRate;
+            log(`Update rate changed to ${updateRate} FPS`);
+            
+            if (isUpdatingFavicon) {
+                startFaviconUpdates(); // Restart with new rate
+            }
+        });
+        
+        // Favicon size slider
+        faviconSizeSlider.addEventListener('input', updateFaviconSize);
+        
+        // Show/hide debug canvas
+        showHiddenCanvasBtn.addEventListener('click', () => {
+            if (hiddenCanvasContainer.style.display === 'none' || !hiddenCanvasContainer.style.display) {
+                hiddenCanvasContainer.style.display = 'block';
+                showHiddenCanvasBtn.textContent = 'Hide Debug Canvas';
+            } else {
+                hiddenCanvasContainer.style.display = 'none';
+                showHiddenCanvasBtn.textContent = 'Show Debug Canvas';
+            }
+        });
+        
+        // Start DOOM on page load
+        window.addEventListener('load', initDoom);
+    </script>
+</body>
+</html>
