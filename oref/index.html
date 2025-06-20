@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הורדות APK של פיקוד העורף</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #667eea;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-toggle:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff8e53);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 50px 30px;
+        }
+
+        .description {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border-left: 6px solid #667eea;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .description::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(102, 126, 234, 0.05) 50%, transparent 70%);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .description h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .description p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+            font-size: 1.1rem;
+        }
+
+        .apk-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .apk-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .apk-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .apk-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .apk-card:hover::before {
+            opacity: 1;
+        }
+
+        .apk-card.no-sound {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffffff, #fff5f5);
+        }
+
+        .apk-card.calm-sound {
+            border-color: #51cf66;
+            background: linear-gradient(135deg, #ffffff, #f0fff4);
+        }
+
+        .apk-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #333;
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+        }
+
+        .apk-card .version {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .apk-card .size {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        .apk-card p {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .download-btn.no-sound {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .download-btn.calm-sound {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            box-shadow: 0 8px 25px rgba(81, 207, 102, 0.3);
+        }
+
+        .features {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 6px solid #51cf66;
+        }
+
+        .features h3 {
+            color: #2d5a2d;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .features ul {
+            color: #2d5a2d;
+            padding-right: 25px;
+            list-style: none;
+        }
+
+        .features li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-right: 25px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .features li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            top: 0;
+            color: #51cf66;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .disclaimer {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffeaa7;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .disclaimer h3 {
+            color: #856404;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .disclaimer p {
+            color: #856404;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 2px solid #f5c6cb;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .warning h3 {
+            color: #721c24;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .warning p {
+            color: #721c24;
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        /* English styles */
+        body[lang="en"] {
+            direction: ltr;
+        }
+
+        body[lang="en"] .features ul {
+            padding-left: 25px;
+            padding-right: 0;
+        }
+
+        body[lang="en"] .features li {
+            padding-left: 25px;
+            padding-right: 0;
+        }
+
+        body[lang="en"] .features li::before {
+            left: 0;
+            right: auto;
+        }
+
+        body[lang="en"] .description {
+            border-left: none;
+            border-right: 6px solid #667eea;
+        }
+
+        body[lang="en"] .features {
+            border-left: none;
+            border-right: 6px solid #51cf66;
+        }
+
+        body[lang="en"] .language-toggle {
+            right: auto;
+            left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .apk-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+
+            .language-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+
+            body[lang="en"] .language-toggle {
+                right: auto;
+                left: 15px;
+            }
+        }
+
+        /* Animation for cards */
+        .apk-card {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .apk-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body lang="he" dir="rtl">
+    <div class="container">
+        <button class="language-toggle" onclick="toggleLanguage()">English</button>
+        
+        <div class="header">
+            <h1 data-he="הורדות APK של פיקוד העורף" data-en="Pikud HaOref APK Downloads">הורדות APK של פיקוד העורף</h1>
+            <p data-he="גרסאות מותאמות עם אפשרויות צליל חלופיות" data-en="Modified versions with alternative sound options">גרסאות מותאמות עם אפשרויות צליל חלופיות</p>
+        </div>
+
+        <div class="content">
+            <div class="description">
+                <h2 data-he="אודות קבצי ה-APK" data-en="About These APK Files">אודות קבצי ה-APK</h2>
+                <p data-he="אלו הן גרסאות מותאמות של האפליקציה הרשמית של פיקוד העורף. האפליקציה המקורית מספקת התראות חירום ומידע לאזרחי ישראל, אך חלק מהמשתמשים מעדיפים אפשרויות צליל חלופיות." data-en="These are modified versions of the official Pikud HaOref (Home Front Command) Android application. The original app provides emergency alerts and information for Israeli citizens, but some users prefer alternative sound options.">אלו הן גרסאות מותאמות של האפליקציה הרשמית של פיקוד העורף. האפליקציה המקורית מספקת התראות חירום ומידע לאזרחי ישראל, אך חלק מהמשתמשים מעדיפים אפשרויות צליל חלופיות.</p>
+                <p data-he="קבצי ה-APK הללו הותאמו כדי לספק חוויות צליל שונות תוך שמירה על הפונקציונליות הבסיסית של האפליקציה המקורית." data-en="These APK files have been modified to provide different sound experiences while maintaining the core functionality of the original application.">קבצי ה-APK הללו הותאמו כדי לספק חוויות צליל שונות תוך שמירה על הפונקציונליות הבסיסית של האפליקציה המקורית.</p>
+            </div>
+
+            <div class="features">
+                <h3 data-he="מה כלול:" data-en="What's Included:">מה כלול:</h3>
+                <ul>
+                    <li data-he="התראות חירום והודעות" data-en="Emergency alerts and notifications">התראות חירום והודעות</li>
+                    <li data-he="מידע בזמן אמת מפיקוד העורף" data-en="Real-time information from Pikud HaOref">מידע בזמן אמת מפיקוד העורף</li>
+                    <li data-he="התראות מבוססות מיקום" data-en="Location-based alerts">התראות מבוססות מיקום</li>
+                    <li data-he="אפשרויות צליל חלופיות (ללא צליל או צלילים רגועים)" data-en="Alternative sound options (No Sound or Calm Sounds)">אפשרויות צליל חלופיות (ללא צליל או צלילים רגועים)</li>
+                    <li data-he="כל הפונקציונליות של האפליקציה המקורית" data-en="All original app functionality">כל הפונקציונליות של האפליקציה המקורית</li>
+                </ul>
+            </div>
+
+            <div class="apk-cards">
+                <div class="apk-card no-sound">
+                    <h3 data-he="גרסה ללא צליל" data-en="No Sound Version">גרסה ללא צליל</h3>
+                    <div class="version">Version 1.14.0</div>
+                    <div class="size" data-he="גודל קובץ: 18MB" data-en="File Size: 18MB">גודל קובץ: 18MB</div>
+                    <p data-he="גרסה זו מספקת את כל ההתראות והודעות ללא אפקטי צליל. מושלם למשתמשים המעדיפים התראות שקטות או רוצים להימנע מצלילים חזקים פתאומיים." data-en="This version provides all alerts and notifications without any sound effects. Perfect for users who prefer silent notifications or want to avoid sudden loud sounds.">גרסה זו מספקת את כל ההתראות והודעות ללא אפקטי צליל. מושלם למשתמשים המעדיפים התראות שקטות או רוצים להימנע מצלילים חזקים פתאומיים.</p>
+                    <a href="NO_SOUND_Home+Front+Command_1.14.0_apkcombo.com.apk" class="download-btn no-sound" download data-he="הורד APK ללא צליל" data-en="Download No Sound APK">
+                        הורד APK ללא צליל
+                    </a>
+                </div>
+
+                <div class="apk-card calm-sound">
+                    <h3 data-he="גרסה עם צלילים רגועים" data-en="Calm Sounds Version">גרסה עם צלילים רגועים</h3>
+                    <div class="version">Version 1.14.0</div>
+                    <div class="size" data-he="גודל קובץ: 45MB" data-en="File Size: 45MB">גודל קובץ: 45MB</div>
+                    <p data-he="גרסה זו מחליפה את צלילי ההתראה ברירת המחדל באפשרויות עדינות ורגועות יותר תוך שמירה על אותה פונקציונליות התראה." data-en="This version replaces the default alert sounds with more gentle, calming alternatives while maintaining the same alert functionality.">גרסה זו מחליפה את צלילי ההתראה ברירת המחדל באפשרויות עדינות ורגועות יותר תוך שמירה על אותה פונקציונליות התראה.</p>
+                    <a href="CALM_SOUNDSHome+Front+Command_1.14.0_apkcombo.com.apk" class="download-btn calm-sound" download data-he="הורד APK עם צלילים רגועים" data-en="Download Calm Sounds APK">
+                        הורד APK עם צלילים רגועים
+                    </a>
+                </div>
+            </div>
+
+            <div class="disclaimer">
+                <h3 data-he="⚠️ אזהרה חשובה" data-en="⚠️ Important Disclaimer">⚠️ אזהרה חשובה</h3>
+                <p data-he="<strong>אלו הן גרסאות מותאמות של האפליקציה הרשמית של פיקוד העורף.</strong> הן מסופקות למטרות מידע וחינוך בלבד. האפליקציה המקורית של פיקוד העורף היא מערכת ההתראה הרשמית לישראל." data-en="<strong>These are modified versions of the official Pikud HaOref application.</strong> They are provided for informational and educational purposes only. The original Pikud HaOref application is the official emergency alert system for Israel."><strong>אלו הן גרסאות מותאמות של האפליקציה הרשמית של פיקוד העורף.</strong> הן מסופקות למטרות מידע וחינוך בלבד. האפליקציה המקורית של פיקוד העורף היא מערכת ההתראה הרשמית לישראל.</p>
+                <p data-he="גרסאות מותאמות אלו שומרות על הפונקציונליות הבסיסית אך משנות את התנהגות הצליל. משתמשים צריכים להיות מודעים שאלו אינן גרסאות רשמיות ועלולות לא לקבל את אותה רמת תמיכה או עדכונים כמו האפליקציה הרשמית." data-en="These modified versions maintain the core functionality but alter the sound behavior. Users should be aware that these are not official releases and may not receive the same level of support or updates as the official application.">גרסאות מותאמות אלו שומרות על הפונקציונליות הבסיסית אך משנות את התנהגות הצליל. משתמשים צריכים להיות מודעים שאלו אינן גרסאות רשמיות ועלולות לא לקבל את אותה רמת תמיכה או עדכונים כמו האפליקציה הרשמית.</p>
+            </div>
+
+            <div class="warning">
+                <h3 data-he="🚨 הצהרה משפטית והגבלת אחריות" data-en="🚨 Legal Disclaimer & Limitation of Liability">🚨 הצהרה משפטית והגבלת אחריות</h3>
+                <p data-he="<strong>ללא אחריות:</strong> קבצי ה-APK הללו מסופקים 'כפי שהם' ללא כל אחריות מכל סוג שהוא, מפורשת או משתמעת, כולל אך לא מוגבל לאחריות המשתמעת של סחירות, התאמה למטרה מסוימת, או אי-הפרה." data-en="<strong>NO WARRANTY:</strong> These APK files are provided 'AS IS' without any warranties of any kind, either express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement."><strong>ללא אחריות:</strong> קבצי ה-APK הללו מסופקים 'כפי שהם' ללא כל אחריות מכל סוג שהוא, מפורשת או משתמעת, כולל אך לא מוגבל לאחריות המשתמעת של סחירות, התאמה למטרה מסוימת, או אי-הפרה.</p>
+                <p data-he="<strong>הגבלת אחריות:</strong> בשום מקרה לא יהיה הספק של קבצים אלו אחראי לכל נזק ישיר, עקיף, מקרי, מיוחד, לדוגמה, או תוצאתי (כולל, אך לא מוגבל לרכישת סחורות או שירותים חלופיים, אובדן שימוש, נתונים או רווחים, או הפרעה עסקית) איך שגרם ובכל תיאוריה של אחריות, בין בחוזה, אחריות קפדנית, או עוולה (כולל רשלנות או אחרת) הנובעת בכל דרך מהשימוש בקבצים אלו, גם אם יועץ על האפשרות של נזק כזה." data-en="<strong>LIMITATION OF LIABILITY:</strong> In no event shall the provider of these files be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services, loss of use, data, or profits, or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of these files, even if advised of the possibility of such damage."><strong>הגבלת אחריות:</strong> בשום מקרה לא יהיה הספק של קבצים אלו אחראי לכל נזק ישיר, עקיף, מקרי, מיוחד, לדוגמה, או תוצאתי (כולל, אך לא מוגבל לרכישת סחורות או שירותים חלופיים, אובדן שימוש, נתונים או רווחים, או הפרעה עסקית) איך שגרם ובכל תיאוריה של אחריות, בין בחוזה, אחריות קפדנית, או עוולה (כולל רשלנות או אחרת) הנובעת בכל דרך מהשימוש בקבצים אלו, גם אם יועץ על האפשרות של נזק כזה.</p>
+                <p data-he="<strong>אחריות המשתמש:</strong> על ידי הורדה והתקנה של קבצי ה-APK הללו, אתה מודה שאתה אחראי באופן בלעדי לכל התוצאות שעלולות לנבוע מהשימוש בהם. אתה מסכים להשתמש בקבצים אלו על אחריותך בלבד ומבין שהספק אינו לוקח אחריות לכל נזק, אובדן או פציעה שעלולים להיגרם מהשימוש בהם." data-en="<strong>USER RESPONSIBILITY:</strong> By downloading and installing these APK files, you acknowledge that you are solely responsible for any consequences that may arise from their use. You agree to use these files at your own risk and understand that the provider assumes no responsibility for any damage, loss, or injury that may result from their use."><strong>אחריות המשתמש:</strong> על ידי הורדה והתקנה של קבצי ה-APK הללו, אתה מודה שאתה אחראי באופן בלעדי לכל התוצאות שעלולות לנבוע מהשימוש בהם. אתה מסכים להשתמש בקבצים אלו על אחריותך בלבד ומבין שהספק אינו לוקח אחריות לכל נזק, אובדן או פציעה שעלולים להיגרם מהשימוש בהם.</p>
+                <p data-he="<strong>שירותי חירום:</strong> גרסאות מותאמות אלו אינן מערכות התראה רשמיות. במקרה חירום, תמיד הסתמך על ערוצים רשמיים ושירותי חירום. הספק אינו אחראי לכל התראות שהוחמצו או מידע חירום." data-en="<strong>EMERGENCY SERVICES:</strong> These modified versions are not official emergency alert systems. In case of emergency, always rely on official channels and emergency services. The provider is not responsible for any missed alerts or emergency information."><strong>שירותי חירום:</strong> גרסאות מותאמות אלו אינן מערכות התראה רשמיות. במקרה חירום, תמיד הסתמך על ערוצים רשמיים ושירותי חירום. הספק אינו אחראי לכל התראות שהוחמצו או מידע חירום.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleLanguage() {
+            const body = document.body;
+            const button = document.querySelector('.language-toggle');
+            const isHebrew = body.getAttribute('lang') === 'he';
+            
+            if (isHebrew) {
+                // Switch to English
+                body.setAttribute('lang', 'en');
+                body.setAttribute('dir', 'ltr');
+                button.textContent = 'עברית';
+                document.title = 'Pikud HaOref APK Downloads';
+            } else {
+                // Switch to Hebrew
+                body.setAttribute('lang', 'he');
+                body.setAttribute('dir', 'rtl');
+                button.textContent = 'English';
+                document.title = 'הורדות APK של פיקוד העורף';
+            }
+            
+            // Update all translatable elements
+            updateTexts();
+        }
+        
+        function updateTexts() {
+            const isHebrew = document.body.getAttribute('lang') === 'he';
+            const lang = isHebrew ? 'he' : 'en';
+            
+            // Update all elements with data attributes
+            const elements = document.querySelectorAll('[data-he][data-en]');
+            elements.forEach(element => {
+                element.innerHTML = element.getAttribute(`data-${lang}`);
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTexts();
+        });
+    </script>
+</body>
+</html> 
