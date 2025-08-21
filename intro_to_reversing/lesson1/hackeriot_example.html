@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hackeriot — Learn. Build. Break. Repeat.</title>
+  <style>
+    :root {
+      --bg: #0f172a;       /* slate-900 */
+      --card: #111827;     /* gray-900 */
+      --text: #e5e7eb;     /* gray-200 */
+      --muted: #9ca3af;    /* gray-400 */
+      --accent: #22d3ee;   /* cyan-400 */
+      --accent-2: #a78bfa; /* violet-400 */
+      --ring: rgba(34, 211, 238, 0.35);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(34,211,238,0.12), transparent 60%),
+                  radial-gradient(1000px 500px at 90% 10%, rgba(167,139,250,0.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 12px 0 8px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 0.5px; }
+    .logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; color: #0b1020; font-weight: 900;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    }
+    nav a { margin-left: 16px; color: var(--muted); font-weight: 600; }
+    nav a:hover { color: var(--text); }
+
+    .hero {
+      padding: 56px 0 32px;
+      display: grid; gap: 16px;
+    }
+    .title { font-size: clamp(28px, 4vw, 48px); line-height: 1.1; font-weight: 900; }
+    .subtitle { color: var(--muted); max-width: 60ch; }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 8px; }
+    .btn {
+      padding: 12px 18px; border-radius: 999px; font-weight: 700; border: 1px solid transparent;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b1020; box-shadow: 0 10px 30px var(--ring);
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: transparent; color: var(--text); border-color: #374151;
+      box-shadow: none;
+    }
+    .grid {
+      display: grid; gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      padding: 12px 0 32px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border: 1px solid rgba(148,163,184,0.15);
+      border-radius: var(--radius);
+      padding: 18px;
+      backdrop-filter: blur(6px);
+    }
+    .card h3 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); }
+    .section-title { margin: 8px 0 4px; font-size: 20px; font-weight: 800; letter-spacing: 0.3px; }
+    ul.clean { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    footer {
+      border-top: 1px solid rgba(148,163,184,0.15);
+      margin-top: 28px; padding: 18px 0; color: var(--muted); font-size: 14px;
+    }
+    .note {
+      margin-top: 4px; font-size: 13px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">H</div>
+        <a href="#"><span>Hackeriot</span></a>
+      </div>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#how">How it works</a>
+        <a href="#apply">Apply</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <h1 class="title">Hackeriot — Learn. Build. Break. Repeat.</h1>
+        <p class="subtitle">
+          A hands-on program for curious builders and ethical hackers. Master the fundamentals,
+          ship real projects, and level up fast with workshops, mentorship, and friendly CTFs.
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="#apply">Apply Now</a>
+          <a class="btn secondary" href="#about">Learn More</a>
+        </div>
+        <p class="note">Cohort size is limited to keep mentorship personal.</p>
+      </section>
+
+      <section id="highlights">
+        <h2 class="section-title">Program Highlights</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Project-Based</h3>
+            <p>Build mini-tools, labs, and demos that showcase your skills.</p>
+          </article>
+          <article class="card">
+            <h3>Security Mindset</h3>
+            <p>Threat modeling, secure coding, and ethical hacking essentials.</p>
+          </article>
+          <article class="card">
+            <h3>Mentor Support</h3>
+            <p>Weekly office hours, code reviews, and career guidance.</p>
+          </article>
+          <article class="card">
+            <h3>Community</h3>
+            <p>Pair up, run study jams, and tackle CTFs together.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="about">
+        <h2 class="section-title">What is Hackeriot?</h2>
+        <p class="subtitle">
+          Hackeriot is a practical, community-driven program blending software engineering with
+          cybersecurity. Whether you’re aiming for your first role or sharpening your edge, you’ll
+          leave with a portfolio and a network.
+        </p>
+        <ul class="clean">
+          <li>8–12 weeks, part-time friendly</li>
+          <li>Weekly workshops + optional weekend labs</li>
+          <li>Capstone project with demo day</li>
+        </ul>
+      </section>
+
+      <section id="how">
+        <h2 class="section-title">How it works</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>1) Onboard</h3>
+            <p>Pick a track (Web, AppSec, or Blue Team) and meet your cohort.</p>
+          </div>
+          <div class="card">
+            <h3>2) Learn</h3>
+            <p>Attend live workshops and complete bite-size challenges.</p>
+          </div>
+          <div class="card">
+            <h3>3) Build</h3>
+            <p>Create tools and writeups—push everything to your portfolio.</p>
+          </div>
+          <div class="card">
+            <h3>4) Demo</h3>
+            <p>Showcase your capstone to peers, mentors, and hiring partners.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="apply">
+        <h2 class="section-title">Apply to Hackeriot</h2>
+        <form class="card" onsubmit="event.preventDefault(); alert('Thanks! We\'ll be in touch.');">
+          <label>
+            Name<br />
+            <input required type="text" name="name" placeholder="Your full name"
+                   style="width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1222;color:#e5e7eb;margin:6px 0;">
+          </label>
+          <label>
+            Email<br />
+            <input required type="email" name="email" placeholder="you@example.com"
+                   style="width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1222;color:#e5e7eb;margin:6px 0;">
+          </label>
+          <label>
+            Track<br />
+            <select name="track" style="width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1222;color:#e5e7eb;margin:6px 0;">
+              <option>Web</option>
+              <option>AppSec</option>
+              <option>Blue Team</option>
+            </select>
+          </label>
+          <button class="btn" type="submit" style="margin-top:6px;">Submit Application</button>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      © <span id="y"></span> Hackeriot • Made with curiosity and coffee
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

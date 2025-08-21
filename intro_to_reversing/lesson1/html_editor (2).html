@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            height: 50px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .file-select {
+            margin-left: 20px;
+        }
+
+        .file-select select {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .run-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: auto;
+            font-size: 14px;
+        }
+
+        .run-btn:hover {
+            background-color: #218838;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        .editor-side {
+            width: 50%;
+            border-right: 2px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .preview-side {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .panel-title {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .code-editor {
+            flex: 1;
+            width: 100%;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .preview-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        .status {
+            background-color: #f8f9fa;
+            padding: 5px 15px;
+            border-top: 1px solid #ccc;
+            font-size: 12px;
+            color: #666;
+            height: 30px;
+        }
+
+        .loading {
+            color: #007bff;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .success {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HTML Editor</h1>
+        
+        <div class="file-select">
+            <select id="fileSelect">
+                <option value="">Select an example...</option>
+                <option value="example_1.html">Example 1</option>
+                <option value="example_2.html">Example 2</option>
+                <option value="example_3.html">Example 3</option>
+                <option value="example_4.html">Example 4</option>
+                <option value="example_5.html">Example 5</option>
+            </select>
+        </div>
+
+        <button class="run-btn" onclick="runCode()">Run Code</button>
+    </div>
+
+    <div class="container">
+        <div class="editor-side">
+            <div class="panel-title">HTML Code Editor</div>
+            <textarea id="codeEditor" class="code-editor" placeholder="Select an example file or write your HTML code here..."></textarea>
+            <div class="status" id="editorStatus">Ready - Select a file to start</div>
+        </div>
+
+        <div class="preview-side">
+            <div class="panel-title">Live Preview</div>
+            <iframe id="previewFrame" class="preview-frame"></iframe>
+            <div class="status" id="previewStatus">No code executed yet</div>
+        </div>
+    </div>
+
+    <script>
+        const fileSelect = document.getElementById('fileSelect');
+        const codeEditor = document.getElementById('codeEditor');
+        const previewFrame = document.getElementById('previewFrame');
+        const editorStatus = document.getElementById('editorStatus');
+        const previewStatus = document.getElementById('previewStatus');
+
+        // Load file from server
+        async function loadFile(filename) {
+            if (!filename) {
+                codeEditor.value = '';
+                editorStatus.textContent = 'Ready - Select a file to start';
+                return;
+            }
+
+            try {
+                editorStatus.textContent = 'Loading file...';
+                editorStatus.className = 'status loading';
+                
+                console.log('Attempting to fetch:', filename);
+                
+                const response = await fetch(filename);
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const content = await response.text();
+                console.log('File loaded successfully, length:', content.length);
+                
+                codeEditor.value = content;
+                
+                editorStatus.textContent = `Loaded: ${filename} (${content.length} chars)`;
+                editorStatus.className = 'status success';
+                
+                // Auto-run the loaded code
+                runCode();
+                
+            } catch (error) {
+                console.error('Detailed error:', error);
+                editorStatus.textContent = `Error: ${error.message}`;
+                editorStatus.className = 'status error';
+                
+                // Try to provide helpful error info
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    editorStatus.textContent = 'Error: Cannot load files. Check if files exist and server allows file access.';
+                }
+            }
+        }
+
+        // Run the HTML code in preview
+        function runCode() {
+            const code = codeEditor.value.trim();
+            
+            if (!code) {
+                previewStatus.textContent = 'No code to run';
+                previewStatus.className = 'status';
+                return;
+            }
+
+            try {
+                const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                previewDoc.open();
+                previewDoc.write(code);
+                previewDoc.close();
+                
+                previewStatus.textContent = `Code executed at ${new Date().toLocaleTimeString()}`;
+                previewStatus.className = 'status success';
+                
+            } catch (error) {
+                previewStatus.textContent = `Error: ${error.message}`;
+                previewStatus.className = 'status error';
+            }
+        }
+
+        // Event listeners
+        fileSelect.addEventListener('change', function() {
+            loadFile(this.value);
+        });
+
+        // Auto-run code when typing (with 1 second delay)
+        let autoRunTimeout;
+        codeEditor.addEventListener('input', function() {
+            clearTimeout(autoRunTimeout);
+            editorStatus.textContent = 'Modified - will auto-run in 1 second...';
+            editorStatus.className = 'status';
+            
+            autoRunTimeout = setTimeout(function() {
+                runCode();
+                editorStatus.textContent = 'Ready';
+            }, 1000);
+        });
+
+        // Add Tab key support for indentation
+        codeEditor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                
+                // Insert 4 spaces
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        // Keyboard shortcut: Ctrl+Enter to run code
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+    </script>
+</body>
+</html>
