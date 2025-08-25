@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary to Information Flow</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .stage {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .stage:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .binary-stage {
+            background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%);
+        }
+        
+        .hex-stage {
+            background: linear-gradient(90deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .info-stage {
+            background: linear-gradient(90deg, #d299c2 0%, #fef9d7 100%);
+        }
+        
+        .stage-content {
+            flex: 1;
+        }
+        
+        .stage-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .stage-data {
+            font-size: 16px;
+            word-break: break-all;
+            color: #555;
+        }
+        
+        .arrow {
+            font-size: 24px;
+            color: #666;
+            margin: 0 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .custom-input {
+            text-align: center;
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+        }
+        
+        .input-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        #customText {
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            width: 250px;
+            margin-right: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        #customText:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .example-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Binary → Hex → Information Flow</div>
+        
+        <div class="flow-container">
+            <div class="stage binary-stage">
+                <div class="stage-content">
+                    <div class="stage-title">1. Binary (0s & 1s)</div>
+                    <div class="stage-data" id="binaryData">01001000 01100101 01101100 01101100 01101111</div>
+                    <div class="example-label">Raw bits - computer's language</div>
+                </div>
+                <div class="arrow">↓</div>
+            </div>
+            
+            <div class="stage hex-stage">
+                <div class="stage-content">
+                    <div class="stage-title">2. Hexadecimal</div>
+                    <div class="stage-data" id="hexData">48 65 6C 6C 6F</div>
+                    <div class="example-label">Compact representation - easier for humans</div>
+                </div>
+                <div class="arrow">↓</div>
+            </div>
+            
+            <div class="stage info-stage">
+                <div class="stage-content">
+                    <div class="stage-title">3. Information</div>
+                    <div class="stage-data" id="infoData">Hello</div>
+                    <div class="example-label">Meaningful data - what we understand</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="showExample('hello')">Hello</button>
+            <button onclick="showExample('world')">World</button>
+            <button onclick="showExample('hi')">Hi</button>
+            <button onclick="showExample('code')">Code</button>
+        </div>
+        
+        <div class="custom-input">
+            <div class="input-title">Try Your Own Text:</div>
+            <input type="text" id="customText" placeholder="Enter any text..." maxlength="20">
+            <button onclick="convertCustomText()">Convert</button>
+        </div>
+    </div>
+
+    <script>
+        const examples = {
+            hello: {
+                binary: '01001000 01100101 01101100 01101100 01101111',
+                hex: '48 65 6C 6C 6F',
+                info: 'Hello'
+            },
+            world: {
+                binary: '01010111 01101111 01110010 01101100 01100100',
+                hex: '57 6F 72 6C 64',
+                info: 'World'
+            },
+            hi: {
+                binary: '01001000 01101001',
+                hex: '48 69',
+                info: 'Hi'
+            },
+            code: {
+                binary: '01000011 01101111 01100100 01100101',
+                hex: '43 6F 64 65',
+                info: 'Code'
+            }
+        };
+
+        function showExample(key) {
+            const example = examples[key];
+            
+            // Add transition effect
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach(stage => stage.style.opacity = '0.5');
+            
+            setTimeout(() => {
+                document.getElementById('binaryData').textContent = example.binary;
+                document.getElementById('hexData').textContent = example.hex;
+                document.getElementById('infoData').textContent = example.info;
+                
+                stages.forEach(stage => stage.style.opacity = '1');
+            }, 200);
+        }
+
+        function convertCustomText() {
+            const text = document.getElementById('customText').value;
+            if (!text) {
+                alert('Please enter some text first!');
+                return;
+            }
+            
+            // Convert text to binary
+            let binary = '';
+            let hex = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i);
+                const binaryChar = charCode.toString(2).padStart(8, '0');
+                const hexChar = charCode.toString(16).toUpperCase().padStart(2, '0');
+                
+                binary += binaryChar;
+                hex += hexChar;
+                
+                if (i < text.length - 1) {
+                    binary += ' ';
+                    hex += ' ';
+                }
+            }
+            
+            // Add transition effect
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach(stage => stage.style.opacity = '0.5');
+            
+            setTimeout(() => {
+                document.getElementById('binaryData').textContent = binary;
+                document.getElementById('hexData').textContent = hex;
+                document.getElementById('infoData').textContent = text;
+                
+                stages.forEach(stage => stage.style.opacity = '1');
+            }, 200);
+        }
+
+        // Allow Enter key to trigger conversion
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('customText').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    convertCustomText();
+                }
+            });
+        });
+
+        // Initialize with "Hello" example
+        showExample('hello');
+        
+        // Add some interactive animation on load
+        window.addEventListener('load', () => {
+            const stages = document.querySelectorAll('.stage');
+            stages.forEach((stage, index) => {
+                stage.style.opacity = '0';
+                stage.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    stage.style.transition = 'all 0.5s ease';
+                    stage.style.opacity = '1';
+                    stage.style.transform = 'translateY(0)';
+                }, index * 300);
+            });
+        });
+    </script>
+</body>
+</html>
