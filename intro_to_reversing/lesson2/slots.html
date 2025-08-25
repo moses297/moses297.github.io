@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine Game</title>
+    <link rel="stylesheet" href="slot_css.css">
+</head>
+<body>
+    <h1>🎰 Lucky Slots 🎰</h1>
+    
+    <div class="slot-machine">
+        <div class="credits-display">
+            Credits: $<span id="credits">100</span>
+        </div>
+        
+        <div class="reels-container">
+            <div class="reel" id="reel1">
+                <div class="reel-strip" id="strip1"></div>
+            </div>
+            <div class="reel" id="reel2">
+                <div class="reel-strip" id="strip2"></div>
+            </div>
+            <div class="reel" id="reel3">
+                <div class="reel-strip" id="strip3"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="bet-controls">
+                <button class="bet-button" onclick="changeBet(-1)">-</button>
+                <div class="current-bet">Bet: $<span id="currentBet">5</span></div>
+                <button class="bet-button" onclick="changeBet(1)">+</button>
+            </div>
+            
+            <button class="spin-button" id="spinButton" onclick="spin()">SPIN</button>
+            <button class="bet-button" onclick="resetGame()" style="margin-left: 20px; background: #f39c12;">RESET</button>
+        </div>
+        
+        <div class="result-display" id="resultDisplay">
+            Place your bet and spin to win!
+        </div>
+        
+        <div class="paytable">
+            <h3>💰 Paytable</h3>
+            <div class="payout-line"><span>🍒 🍒 🍒</span><span>50x</span></div>
+            <div class="payout-line"><span>🍋 🍋 🍋</span><span>30x</span></div>
+            <div class="payout-line"><span>🍊 🍊 🍊</span><span>20x</span></div>
+            <div class="payout-line"><span>🍇 🍇 🍇</span><span>15x</span></div>
+            <div class="payout-line"><span>⭐ ⭐ ⭐</span><span>100x</span></div>
+            <div class="payout-line"><span>💎 💎 💎</span><span>500x</span></div>
+            <div class="payout-line"><span>Any 2 match</span><span>2x</span></div>
+        </div>
+    </div>
+
+    <script src="slot_js.js"></script>
+</body>
+</html>

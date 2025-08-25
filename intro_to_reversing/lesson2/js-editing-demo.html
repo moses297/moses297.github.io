@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Editing Workshop Demo</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.2);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #4CAF50;
+        }
+        
+        .demo-section h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        #output {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            min-height: 50px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #4CAF50;
+        }
+        
+        .color-box {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            display: inline-block;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .counter {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        input[type="text"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="pageTitle">JavaScript Editing Workshop</h1>
+        
+        <div class="demo-section">
+            <h3>🎨 Color Changer</h3>
+            <p>Edit the colors array in the JavaScript to change these boxes!</p>
+            <div id="colorBoxes"></div>
+            <button onclick="changeColors()">Change Colors</button>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🔢 Counter</h3>
+            <p>Modify the increment value in the code!</p>
+            <div class="counter" id="counter">0</div>
+            <button onclick="incrementCounter()">Add</button>
+            <button onclick="resetCounter()">Reset</button>
+        </div>
+        
+        <div class="demo-section">
+            <h3>💬 Message Generator</h3>
+            <p>Change the messages array to customize the output!</p>
+            <button onclick="showRandomMessage()">Show Random Message</button>
+            <div id="output">Click the button to see a message!</div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>🚀 Interactive Input</h3>
+            <p>Modify the greeting function!</p>
+            <input type="text" id="nameInput" placeholder="Enter your name">
+            <button onclick="greetUser()">Greet Me</button>
+            <div id="greeting"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>⏰ Live Clock</h3>
+            <p>Change the clock format or update interval!</p>
+            <div id="clock" style="font-size: 2em; text-align: center;"></div>
+        </div>
+    </div>
+
+    <script src="workshop-js-file.js"></script>
+</body>
+</html>

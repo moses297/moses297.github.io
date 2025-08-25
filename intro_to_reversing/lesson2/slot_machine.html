@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-size: 2.5em;
+        }
+        
+        .slot-machine {
+            background: linear-gradient(145deg, #2c2c54, #1a1a2e);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 5px solid #ffd700;
+        }
+        
+        .credits-display {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        
+        .reels-container {
+            display: flex;
+            gap: 10px;
+            background: #000;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            margin-bottom: 20px;
+        }
+        
+        .reel {
+            width: 100px;
+            height: 120px;
+            background: #fff;
+            border: 3px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .reel-strip {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.1s ease;
+        }
+        
+        .symbol {
+            width: 100px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #ccc;
+        }
+        
+        .spinning .reel-strip {
+            animation: spin 0.1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-120px); }
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .bet-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .bet-button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .bet-button:hover {
+            background: #5a4fcf;
+        }
+        
+        .current-bet {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .spin-button {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+        }
+        
+        .spin-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .result-display {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 20px;
+            min-height: 30px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .win {
+            color: #2ecc71;
+            font-weight: bold;
+            animation: flash 1s ease-in-out;
+        }
+        
+        .lose {
+            color: #e74c3c;
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .paytable {
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .paytable h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+        
+        .payout-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎰 Lucky Slots 🎰</h1>
+    
+    <div class="slot-machine">
+        <div class="credits-display">
+            Credits: $<span id="credits">100</span>
+        </div>
+        
+        <div class="reels-container">
+            <div class="reel" id="reel1">
+                <div class="reel-strip" id="strip1"></div>
+            </div>
+            <div class="reel" id="reel2">
+                <div class="reel-strip" id="strip2"></div>
+            </div>
+            <div class="reel" id="reel3">
+                <div class="reel-strip" id="strip3"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="bet-controls">
+                <button class="bet-button" onclick="changeBet(-1)">-</button>
+                <div class="current-bet">Bet: $<span id="currentBet">5</span></div>
+                <button class="bet-button" onclick="changeBet(1)">+</button>
+            </div>
+            
+            <button class="spin-button" id="spinButton" onclick="spin()">SPIN</button>
+            <button class="bet-button" onclick="resetGame()" style="margin-left: 20px; background: #f39c12;">RESET</button>
+        </div>
+        
+        <div class="result-display" id="resultDisplay">
+            Place your bet and spin to win!
+        </div>
+        
+        <div class="paytable">
+            <h3>💰 Paytable</h3>
+            <div class="payout-line"><span>🍒 🍒 🍒</span><span>50x</span></div>
+            <div class="payout-line"><span>🍋 🍋 🍋</span><span>30x</span></div>
+            <div class="payout-line"><span>🍊 🍊 🍊</span><span>20x</span></div>
+            <div class="payout-line"><span>🍇 🍇 🍇</span><span>15x</span></div>
+            <div class="payout-line"><span>⭐ ⭐ ⭐</span><span>100x</span></div>
+            <div class="payout-line"><span>💎 💎 💎</span><span>500x</span></div>
+            <div class="payout-line"><span>Any 2 match</span><span>2x</span></div>
+        </div>
+    </div>
+
+    <script>
+        const symbols = ['🍒', '🍋', '🍊', '🍇', '⭐', '💎', '🎲', '🎯'];
+        const payouts = {
+            '🍒🍒🍒': 50,
+            '🍋🍋🍋': 30,
+            '🍊🍊🍊': 20,
+            '🍇🍇🍇': 15,
+            '⭐⭐⭐': 100,
+            '💎💎💎': 500
+        };
+
+        // Base64 encoded flag
+        const encodedFlag = "ZmxhZ3tpX2JlYXRfdGhlX2Nhc2lub30=";
+
+        let credits = 100;
+        let currentBet = 5;
+        let isSpinning = false;
+        let reelResults = ['', '', ''];
+
+        const creditsElement = document.getElementById('credits');
+        const currentBetElement = document.getElementById('currentBet');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const spinButton = document.getElementById('spinButton');
+
+        function initializeReels() {
+            for (let i = 1; i <= 3; i++) {
+                const strip = document.getElementById(`strip${i}`);
+                strip.innerHTML = '';
+                for (let j = 0; j < 20; j++) {
+                    const symbol = document.createElement('div');
+                    symbol.className = 'symbol';
+                    symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    strip.appendChild(symbol);
+                }
+            }
+        }
+
+        function changeBet(direction) {
+            if (isSpinning) return;
+            
+            let newBet;
+            if (direction === 1) {
+                newBet = currentBet + 5;
+                if (newBet <= Math.min(credits, 50)) {
+                    currentBet = newBet;
+                }
+            } else {
+                newBet = currentBet - 5;
+                if (newBet >= 5) {
+                    currentBet = newBet;
+                } else if (currentBet > credits && credits >= 5) {
+                    currentBet = Math.floor(credits / 5) * 5;
+                }
+            }
+            
+            if (currentBet > credits) {
+                currentBet = Math.floor(credits / 5) * 5;
+                if (currentBet < 5) currentBet = 5;
+            }
+            
+            currentBetElement.textContent = currentBet;
+        }
+
+        function resetGame() {
+            if (isSpinning) return;
+            
+            credits = 100;
+            currentBet = 5;
+            creditsElement.textContent = credits;
+            currentBetElement.textContent = currentBet;
+            resultDisplay.textContent = 'Game reset! Place your bet and spin to win!';
+            resultDisplay.className = '';
+            
+            initializeReels();
+        }
+
+        function spin() {
+            if (isSpinning || credits < currentBet) {
+                if (credits < currentBet) {
+                    resultDisplay.textContent = 'Not enough credits! Reduce your bet or reset game.';
+                    resultDisplay.className = 'lose';
+                }
+                return;
+            }
+            
+            isSpinning = true;
+            credits -= currentBet;
+            creditsElement.textContent = credits;
+            spinButton.disabled = true;
+            resultDisplay.textContent = 'Spinning...';
+            resultDisplay.className = '';
+            
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                reel.classList.add('spinning');
+            }
+            
+            setTimeout(() => stopReel(1), 1000 + Math.random() * 500);
+            setTimeout(() => stopReel(2), 1500 + Math.random() * 500);
+            setTimeout(() => stopReel(3), 2000 + Math.random() * 500);
+        }
+
+        function stopReel(reelNumber) {
+            const reel = document.getElementById(`reel${reelNumber}`);
+            const strip = document.getElementById(`strip${reelNumber}`);
+            
+            reel.classList.remove('spinning');
+            
+            const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+            reelResults[reelNumber - 1] = randomSymbol;
+            
+            strip.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+                symbol.textContent = i === 1 ? randomSymbol : symbols[Math.floor(Math.random() * symbols.length)];
+                strip.appendChild(symbol);
+            }
+            
+            strip.style.transform = 'translateY(-120px)';
+            
+            if (reelNumber === 3) {
+                setTimeout(checkWin, 500);
+            }
+        }
+
+        function checkWin() {
+            const result = reelResults.join('');
+            let winAmount = 0;
+            let winMessage = '';
+            
+            if (payouts[result]) {
+                winAmount = currentBet * payouts[result];
+                winMessage = `JACKPOT! ${result} - Won $${winAmount}!`;
+                resultDisplay.className = 'win';
+            } else {
+                const uniqueSymbols = [...new Set(reelResults)];
+                if (uniqueSymbols.length === 2) {
+                    winAmount = currentBet * 2;
+                    winMessage = `Two of a kind! Won $${winAmount}!`;
+                    resultDisplay.className = 'win';
+                } else {
+                    winMessage = 'Better luck next time!';
+                    resultDisplay.className = 'lose';
+                }
+            }
+            
+            credits += winAmount;
+            creditsElement.textContent = credits;
+            resultDisplay.textContent = winMessage;
+            
+            // Check if player has beaten the casino (more than 50,000 credits)
+            if (credits > 50000) {
+                const flag = atob(encodedFlag);
+                alert(`🎉 CONGRATULATIONS! You've beaten the casino! 🎉\n\n${flag}`);
+            }
+            
+            if (currentBet > credits && credits > 0) {
+                currentBet = Math.floor(credits / 5) * 5;
+                if (currentBet < 5 && credits >= 5) currentBet = 5;
+                currentBetElement.textContent = currentBet;
+            }
+            
+            if (credits < 5) {
+                setTimeout(() => {
+                    alert('Game Over! You ran out of credits. Starting fresh with $100.');
+                    resetGame();
+                }, 2000);
+            }
+            
+            isSpinning = false;
+            spinButton.disabled = false;
+        }
+
+        initializeReels();
+    </script>
+</body>
+</html>
