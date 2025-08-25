@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: JavaScript Hacking - Hackeriot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00ccff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid #00ccff;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #00ccff;
+            color: #1a1a2e;
+        }
+
+
+
+        .exercise-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .exercise-title {
+            color: #00ccff;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .exercise-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .exercise-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .exercise-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            margin-top: 10px;
+        }
+
+        .exercise-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.4);
+        }
+
+        .external-link {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .external-link:hover {
+            background: #ff6b6b;
+            color: #1a1a2e;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .lesson-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Back to Main Portal</a>
+        
+        <header class="header">
+            <h1>Lesson 2: JavaScript Hacking</h1>
+            <p>Master client-side JavaScript reverse engineering</p>
+        </header>
+
+
+
+        <div class="exercise-section">
+            <div class="exercise-title">
+                <span>🎮</span>
+                Interactive Exercises
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Practice your JavaScript hacking skills with these interactive challenges:</p>
+            
+            <div class="exercise-grid">
+                <div class="exercise-item">
+                    <h4 style="color: #00ccff; margin-bottom: 10px;">🎰 Slot Machine Challenge</h4>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Beat the casino by manipulating the slot machine JavaScript</p>
+                    <a href="slots.html" class="exercise-btn">Play Slot Machine</a>
+                </div>
+
+                <div class="exercise-item">
+                    <h4 style="color: #00ccff; margin-bottom: 10px;">🔧 JS Editing Demo</h4>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Practice JavaScript manipulation without the learning overhead</p>
+                    <a href="js-editing-demo.html" class="exercise-btn">Open JS Demo</a>
+                </div>
+
+                <div class="exercise-item">
+                    <h4 style="color: #00ccff; margin-bottom: 10px;">🧩 2048 Game Challenge</h4>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">External challenge - analyze and manipulate this popular game</p>
+                    <a href="https://4ark.me/2048/" target="_blank" class="exercise-btn">Play 2048 Game</a>
+                </div>
+
+
+            </div>
+        </div>
+
+                <div class="exercise-section">
+            <div class="exercise-title">
+                <span>📁</span>
+                Downloadable Resources
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Download these files for offline analysis and modification:</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="exercise-item">
+                    <h4 style="color: #00ccff; margin-bottom: 10px;">🔧 JS Workshop Demo</h4>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Combined HTML+JS file for JavaScript manipulation practice</p>
+                    <a href="js-workshop-demo.html" class="exercise-btn">Open JS Workshop</a>
+                    <p style="color: #888; font-size: 0.8rem; margin-top: 10px; font-style: italic;">💡 Right-click and "Save link as..." to download</p>
+                </div>
+
+                <div class="exercise-item">
+                    <h4 style="color: #00ccff; margin-bottom: 10px;">🎰 Slot Machine Challenge</h4>
+                    <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Download the complete slot machine challenge</p>
+                    <a href="slot_machine.html" class="exercise-btn" download>Download Slot Machine</a>
+                    <p style="color: #888; font-size: 0.8rem; margin-top: 10px; font-style: italic;">💡 Right-click and "Save link as..." to download</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise-section">
+            <div class="exercise-title">
+                <span>📚</span>
+                About This Lesson
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">JavaScript hacking focuses on understanding and manipulating client-side code. This lesson provides practical exercises to develop your skills in analyzing and modifying JavaScript code in real-time using browser developer tools.</p>
+            
+            <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                <h4 style="color: #00ff88; margin-bottom: 15px;">🔧 Inspect Instructions</h4>
+                <p style="color: #b0b0b0; font-size: 0.9rem; margin-bottom: 15px;">How to edit JavaScript code in the Sources tab:</p>
+                <ol style="padding-left: 20px; color: #b0b0b0; font-size: 0.9rem; line-height: 1.8;">
+                    <li>Press <strong>F12</strong> to open Developer Tools</li>
+                    <li>Go to the <strong>Sources</strong> tab</li>
+                    <li>Find the JavaScript file you want to edit</li>
+                    <li>Click on the line number to set a breakpoint (optional)</li>
+                    <li><strong>Double-click</strong> on any line to edit the code directly</li>
+                    <li>Press <strong>Ctrl+S</strong> (or Cmd+S on Mac) to save</li>
+                    <li><strong>No need to refresh</strong> - changes take effect immediately!</li>
+                </ol>
+            </div>
+        </div>
+
+ 

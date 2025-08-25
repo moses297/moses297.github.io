@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackeriot - Introduction To Reverse Engineering</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+
+        .header .workshop-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .lesson-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .lesson-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .lesson-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .lesson-description {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+        }
+
+        .lesson-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .lesson-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.4);
+        }
+
+        .resources-section {
+            margin-top: 60px;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .resource-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-5px);
+        }
+
+        .resource-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #00ccff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resource-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .resource-link {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border-left: 3px solid #00ff88;
+        }
+
+        .resource-link:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateX(5px);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #00ccff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-tracker {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .progress-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #8b5cf6, #a855f7);
+            color: #ffffff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .progress-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a0a0a0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .lessons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+        }
+
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 204, 255, 0.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="animate-glow">HACKERIOT</h1>
+            <p class="subtitle">Introduction To Reverse Engineering Workshop</p>
+            <div class="workshop-info">
+                <p>Master the fundamentals of reverse engineering through hands-on exercises and real-world applications</p>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #00ccff;">by Moshe Siman Tov Bustan</p>
+                <p style="margin-top: 5px; font-size: 0.9rem; color: #00ff88;">Hackeriot 2025</p>
+            </div>
+        </header>
+
+        <section class="lessons-section">
+            <h2 class="section-title">Workshop Lessons</h2>
+            <div class="lessons-grid">
+                <div class="lesson-card">
+                    <div class="lesson-number">01</div>
+                    <h3 class="lesson-title">HTML Hacking</h3>
+                    <p class="lesson-description">Learn to analyze and manipulate HTML structures, discover hidden elements, and understand client-side vulnerabilities.</p>
+                    <a href="lesson1/" class="lesson-link">Start Lesson 1</a>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-number">02</div>
+                    <h3 class="lesson-title">JavaScript Hacking</h3>
+                    <p class="lesson-description">Dive into JavaScript reverse engineering, code obfuscation, and client-side security analysis.</p>
+                    <a href="lesson2/" class="lesson-link">Start Lesson 2</a>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-number">03</div>
+                    <h3 class="lesson-title">Filetypes</h3>
+                    <p class="lesson-description">Explore various file formats, metadata extraction, and file signature analysis techniques.</p>
+                    <a href="lesson3/" class="lesson-link">Start Lesson 3</a>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-number">04</div>
+                    <h3 class="lesson-title">Binaries</h3>
+                    <p class="lesson-description">Master binary analysis, disassembly, debugging, and executable file format understanding.</p>
+                    <a href="lesson4/" class="lesson-link">Start Lesson 4</a>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-number">05</div>
+                    <h3 class="lesson-title">Bonus & MISC</h3>
+                    <p class="lesson-description">Additional challenges, advanced techniques, and miscellaneous reverse engineering topics.</p>
+                    <a href="lesson5/" class="lesson-link">Start Lesson 5</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="resources-section">
+            <h2 class="section-title">Tools & Resources</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">🔧</span>
+                        Online Tools
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://godbolt.org/" class="resource-link" target="_blank">Binary to Assembly - Godbolt</a>
+                        <a href="https://www.checkfiletype.com/" class="resource-link" target="_blank">File Header Check</a>
+                        <a href="https://hexed.it/" class="resource-link" target="_blank">Hex Editor</a>
+                        <a href="https://onecompiler.com/c" class="resource-link" target="_blank">C Compiler</a>
+                        <a href="https://dogbolt.org/" class="resource-link" target="_blank">Online Decompiler</a>
+                        <a href="https://www.decompiler.com/" class="resource-link" target="_blank">Android Decompiler</a>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">📝</span>
+                        Text Editors
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://www.sublimetext.com/" class="resource-link" target="_blank">Sublime Text</a>
+                        <a href="https://notepad-plus-plus.org/" class="resource-link" target="_blank">Notepad++</a>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">🛠️</span>
+                        Decompilers & Analysis Tools
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_11.3.2_build" class="resource-link" target="_blank">Ghidra Decompiler</a>
+                        <a href="https://hex-rays.com/ida-free/" class="resource-link" target="_blank">IDA Decompiler</a>
+                        <a href="https://github.com/skylot/jadx" class="resource-link" target="_blank">JADX Decompiler</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="progress-tracker">
+            <h3 class="resource-title">
+                <span class="icon">📊</span>
+                Track Your Progress
+            </h3>
+            <p style="margin: 20px 0; color: #b0b0b0;">Monitor your completion status and compete with other participants</p>
+            <a href="ctf-progress.html" class="progress-link">CTF Progress Tracking</a>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 Moshe Siman Tov Bustan - Hackeriot 2025 Introduction To Reverse Engineering Workshop</p>
+            <p>Happy Hacking! 🚀</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to lesson cards
+            const lessonCards = document.querySelectorAll('.lesson-card');
+            lessonCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add click effects to buttons
+            const buttons = document.querySelectorAll('.lesson-link, .progress-link');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Create ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

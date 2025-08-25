@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 4: Binaries - Hackeriot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00ccff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid #00ccff;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #00ccff;
+            color: #1a1a2e;
+        }
+
+
+
+        .exercise-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .exercise-title {
+            color: #00ccff;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exercise-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .exercise-group h4 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .exercise-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .source-btn {
+            background: linear-gradient(45deg, #ffd93d, #ffb347);
+            color: #1a1a2e;
+        }
+
+        .tools-section {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .tool-card h4 {
+            color: #00ccff;
+            margin-bottom: 10px;
+        }
+
+        .tool-link {
+            display: inline-block;
+            background: rgba(0, 204, 255, 0.2);
+            color: #00ccff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            border: 1px solid #00ccff;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .tool-link:hover {
+            background: #00ccff;
+            color: #1a1a2e;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .lesson-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Back to Main Portal</a>
+        
+        <header class="header">
+            <h1>Lesson 4: Binaries</h1>
+            <p>Master binary analysis and reverse engineering</p>
+        </header>
+
+
+
+        <div class="tools-section">
+            <div class="exercise-title">
+                <span>🔧</span>
+                Essential Binary Analysis Tools
+            </div>
+            
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <h4>🌐 Online Decompiler</h4>
+                    <p style="color: #b0b0b0; font-size: 0.9rem; margin-bottom: 10px;">Multi-architecture binary decompilation service</p>
+                    <a href="https://dogbolt.org/" target="_blank" class="tool-link">Open Dogbolt</a>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>🔍 Hex Editor</h4>
+                    <p style="color: #b0b0b0; font-size: 0.9rem; margin-bottom: 10px;">Examine binary files at the byte level</p>
+                    <a href="https://hexed.it/" target="_blank" class="tool-link">Open HexEd.it</a>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>⚙️ C Compiler</h4>
+                    <p style="color: #b0b0b0; font-size: 0.9rem; margin-bottom: 10px;">Compile and test C code online</p>
+                    <a href="https://onecompiler.com/c" target="_blank" class="tool-link">Open OneCompiler</a>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>📊 Binary to Assembly</h4>
+                    <p style="color: #b0b0b0; font-size: 0.9rem; margin-bottom: 10px;">Compiler explorer for assembly analysis</p>
+                    <a href="https://godbolt.org/" target="_blank" class="tool-link">Open Godbolt</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise-section">
+            <div class="exercise-title">
+                <span>📁</span>
+                Binary Exercise Files
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Download and analyze these compiled binaries:</p>
+            
+            <div class="exercise-group">
+                <h4>Exercise 1 - Basic Binary Analysis</h4>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Simple binary analysis with source code reference</p>
+                <div class="exercise-files">
+                    <div class="file-item">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⚙️</div>
+                        <h5 style="color: #00ccff; margin-bottom: 5px;">Exercise 1 Binary</h5>
+                        <p style="color: #888; font-size: 0.8rem;">Compiled object file</p>
+                        <a href="lesson_4_exercise_1_compiled.o" class="download-btn" download>Download Binary</a>
+                        <a href="lesson_4_exercise_1_source.c" class="download-btn source-btn" download>Download Source</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="exercise-group">
+                <h4>Exercise 2 - Intermediate Challenge</h4>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">More complex binary without source code</p>
+                <div class="exercise-files">
+                    <div class="file-item">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🔒</div>
+                        <h5 style="color: #00ccff; margin-bottom: 5px;">Exercise 2 Binary</h5>
+                        <p style="color: #888; font-size: 0.8rem;">Binary-only analysis</p>
+                        <a href="lesson_4_exercise_2_compiled.o" class="download-btn" download>Download Binary</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="exercise-group">
+                <h4>Exercise 3 - Advanced Reverse Engineering</h4>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">Complex algorithm implementation with source for verification</p>
+                <div class="exercise-files">
+                    <div class="file-item">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🧠</div>
+                        <h5 style="color: #00ccff; margin-bottom: 5px;">Exercise 3 Binary</h5>
+                        <p style="color: #888; font-size: 0.8rem;">Advanced binary analysis</p>
+                        <a href="lesson_4_exercise_3_compiled.o" class="download-btn" download>Download Binary</a>
+                        <a href="lesson_4_exercise_3_source.c" class="download-btn source-btn" download>Download Source</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: rgba(0, 255, 136, 0.1); border: 2px solid #00ff88; border-radius: 15px; padding: 25px; margin: 30px 0; text-align: center;">
+            <h3 style="color: #00ff88; margin-bottom: 15px;">🔍 Binary Analysis Workflow</h3>
+            <div style="text-align: left; color: #b0b0b0;">
+                <p><strong>1.</strong> File identification and basic properties</p>
+                <p><strong>2.</strong> Strings analysis for readable content</p>
+                <p><strong>3.</strong> Entry point and function identification</p>
+                <p><strong>4.</strong> Static disassembly and control flow</p>
+                <p><strong>5.</strong> Dynamic analysis with debugger</p>
+                <p><strong>6.</strong> Algorithm reconstruction and documentation</p>
+            </div>
+        </div>
+
+        <div style="background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; border-radius: 10px; padding: 20px; margin: 20px 0;">
+            <h4 style="color: #ff6b6b; margin-bottom: 10px;">📋 Assembly Language Quick Reference</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; color: #b0b0b0; font-size: 0.9rem;">
+                <div>
+                    <strong>Data Movement:</strong><br>
+                    mov, push, pop, lea
+                </div>
+                <div>
+                    <strong>Arithmetic:</strong><br>
+                    add, sub, mul, div, inc, dec
+                </div>
+                <div>
+                    <strong>Logic:</strong><br>
+                    and, or, xor, not, shl, shr
+                </div>
+                <div>
+                    <strong>Control Flow:</strong><br>
+                    jmp, je, jne, call, ret
+                </div>
+                <div>
+                    <strong>Comparison:</strong><br>
+                    cmp, test
+                </div>
+                <div>
+                    <strong>Registers:</strong><br>
+                    eax, ebx, ecx, edx, esp, ebp
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 30px;">
+            <h3 style="color: #00ff88; margin-bottom: 20px;">🏆 Ready for the Challenge?</h3>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Complete the exercises and submit your flags to track your progress!</p>
+            <a href="../ctf-progress.html" style="display: inline-block; background: linear-gradient(45deg, #ff6b6b, #ffd93d); color: #1a1a2e; padding: 15px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; transition: all 0.3s ease;">Track Your Progress</a>
+        </div>
+    </div>
+</body>
+</html>

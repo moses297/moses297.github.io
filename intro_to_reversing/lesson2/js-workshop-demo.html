@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Workshop Demo - Lesson 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00ccff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid #00ccff;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #00ccff;
+            color: #1a1a2e;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .demo-title {
+            color: #00ccff;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .demo-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .demo-item h4 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .demo-item p {
+            color: #b0b0b0;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .demo-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+        }
+
+        .demo-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-display {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            background: rgba(0, 204, 255, 0.1);
+            border: 1px solid #00ccff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .instructions h4 {
+            color: #00ccff;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #b0b0b0;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Lesson 2</a>
+        
+        <header class="header">
+            <h1>JavaScript Workshop Demo</h1>
+            <p>Practice JavaScript manipulation with these interactive examples</p>
+        </header>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <span>🔧</span>
+                JavaScript Manipulation Practice
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Use browser developer tools to modify these JavaScript functions and see the results in real-time:</p>
+            
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <h4>🎯 Variable Manipulation</h4>
+                    <p>Try changing the value of <code>secretNumber</code> in the console or by editing the source code.</p>
+                    <button class="demo-btn" onclick="checkSecret()">Check Secret Number</button>
+                    <div id="secretResult" class="result-display" style="display: none;"></div>
+                </div>
+
+                <div class="demo-item">
+                    <h4>🔓 Function Override</h4>
+                    <p>Override the <code>isLocked()</code> function to always return false.</p>
+                    <button class="demo-btn" onclick="checkLock()">Check Lock Status</button>
+                    <div id="lockResult" class="result-display" style="display: none;"></div>
+                </div>
+
+                <div class="demo-item">
+                    <h4>🎲 Random Generator</h4>
+                    <p>Modify the random number generator to always return your desired value.</p>
+                    <button class="demo-btn" onclick="generateRandom()">Generate Random</button>
+                    <div id="randomResult" class="result-display" style="display: none;"></div>
+                </div>
+
+                <div class="demo-item">
+                    <h4>🔐 Password Check</h4>
+                    <p>Bypass the password validation by modifying the check function.</p>
+                    <button class="demo-btn" onclick="checkPassword()">Check Password</button>
+                    <div id="passwordResult" class="result-display" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h4>🔧 How to Modify JavaScript Code:</h4>
+                <ol>
+                    <li>Press <strong>F12</strong> to open Developer Tools</li>
+                    <li>Go to the <strong>Sources</strong> tab</li>
+                    <li>Find this HTML file in the file tree</li>
+                    <li>Look for the <code>&lt;script&gt;</code> section at the bottom</li>
+                    <li><strong>Double-click</strong> on any line to edit the code</li>
+                    <li>Press <strong>Ctrl+S</strong> to save changes</li>
+                    <li><strong>No refresh needed</strong> - changes take effect immediately!</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <span>💡</span>
+                Challenge Hints
+            </div>
+            <p style="color: #b0b0b0; margin-bottom: 20px;">Try these modifications to see how JavaScript can be manipulated:</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div class="demo-item">
+                    <h4>🎯 Secret Number Challenge</h4>
+                    <p>Find the line <code>let secretNumber = 42;</code> and change it to any number you want. Then click the button to see your new secret number!</p>
+                </div>
+                
+                <div class="demo-item">
+                    <h4>🔓 Lock Bypass Challenge</h4>
+                    <p>Look for the <code>isLocked()</code> function and change <code>return true;</code> to <code>return false;</code> to unlock the system.</p>
+                </div>
+                
+                <div class="demo-item">
+                    <h4>🎲 Random Control Challenge</h4>
+                    <p>Find the <code>Math.random()</code> call and replace it with a fixed number like <code>0.5</code> to always get the same "random" result.</p>
+                </div>
+                
+                <div class="demo-item">
+                    <h4>🔐 Password Bypass Challenge</h4>
+                    <p>Modify the password check to always return true, or change the expected password to something you know.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Workshop Demo Functions
+        // Try modifying these functions using browser developer tools!
+
+        let secretNumber = 42;
+        let isSystemLocked = true;
+        let expectedPassword = "hackeriot2025";
+
+        function checkSecret() {
+            const result = document.getElementById('secretResult');
+            result.style.display = 'block';
+            result.innerHTML = `🔍 Current secret number: <strong>${secretNumber}</strong><br>💡 Try changing this value in the source code!`;
+        }
+
+        function isLocked() {
+            return true; // Try changing this to false!
+        }
+
+        function checkLock() {
+            const result = document.getElementById('lockResult');
+            result.style.display = 'block';
+            
+            if (isLocked()) {
+                result.innerHTML = `🔒 System is <strong>LOCKED</strong><br>💡 Try modifying the isLocked() function to return false!`;
+            } else {
+                result.innerHTML = `🔓 System is <strong>UNLOCKED</strong><br>🎉 Great job! You successfully bypassed the lock!`;
+            }
+        }
+
+        function generateRandom() {
+            const result = document.getElementById('randomResult');
+            result.style.display = 'block';
+            
+            // Try modifying this line to always return the same value
+            const randomValue = Math.random();
+            result.innerHTML = `🎲 Random value: <strong>${randomValue.toFixed(4)}</strong><br>💡 Try replacing Math.random() with a fixed number!`;
+        }
+
+        function checkPassword() {
+            const result = document.getElementById('passwordResult');
+            result.style.display = 'block';
+            
+            // Try modifying this function to always return true
+            const isValid = false; // Change this to true to bypass the check
+            
+            if (isValid) {
+                result.innerHTML = `🔓 Password check <strong>BYPASSED</strong><br>🎉 You successfully modified the function!`;
+            } else {
+                result.innerHTML = `🔐 Password check <strong>FAILED</strong><br>💡 Try modifying the checkPassword function to return true!`;
+            }
+        }
+
+        // Bonus: Add some global variables that can be manipulated
+        window.hackMe = "Try changing this value in the console!";
+        window.secretFlag = "flag{js_manipulation_master}";
+        
+        // Make functions globally accessible for console manipulation
+        window.checkSecret = checkSecret;
+        window.checkLock = checkLock;
+        window.generateRandom = generateRandom;
+        window.checkPassword = checkPassword;
+        window.isLocked = isLocked;
+        
+        console.log("🔧 JavaScript Workshop Demo loaded!");
+        console.log("💡 Try modifying these functions using browser developer tools!");
+        console.log("🎯 Global variables available: hackMe, secretFlag");
+    </script>
+</body>
+</html>
