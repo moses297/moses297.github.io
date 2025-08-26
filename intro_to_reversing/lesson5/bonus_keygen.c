@@ -1,12 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// Key rule:
-// 1. Must be 8 chars
-// 2. Sum of ASCII codes = 800
-// 3. Last char = 'X'
-
-// Obfuscated flag (XOR with 7)
 char obf_flag[] = {97,107,102,96,124,101,104,105,114,116,88,115,110,106,98,122,0};
 
 int check_key(const char *key) {
