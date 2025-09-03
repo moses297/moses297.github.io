@@ -343,7 +343,7 @@
 
             <div class="progress-display">
                 <div class="progress-numbers">
-                    <div class="progress-main" id="progressMain">0 / 8</div>
+                    <div class="progress-main" id="progressMain">0 / 17</div>
                     <div class="progress-label">Challenges Completed</div>
                 </div>
                 <div class="progress-percentage" id="progressPercentage">0%</div>
@@ -595,17 +595,25 @@
         // Challenge definitions with MD5 hashes
         const challenges = {
             'lesson1': [
+                { id: 'baby_steps', hash: '07269f7e6e5378bcbcdd317df7815406', name: '#2' },
                 { id: 'css_display_none', hash: 'b846e638cfe139c07f4fbc5bd5942ec5', name: '#3' },
                 { id: 'offset_discovered', hash: '2a4b58faba26e8011e423197643356b1', name: '#4' }
             ],
             'lesson2': [
-                { id: 'casino_beaten', hash: '5ea39babd14c6b5a45a6a7f0ea631060', name: 'Slots Machine' }
+                { id: 'casino_beaten', hash: '5ea39babd14c6b5a45a6a7f0ea631060', name: 'Slots Machine' },
+                { id: 'blurry_vision', hash: '5fbd3ef3bd96bc14497f6160860737e2', name: 'Blurry Vision' },
+                { id: 'button_unlocked', hash: '5fd8419d2c8a1342f065aeb5d5ce7e41', name: 'Button Unlock' },
+                { id: 'making_time_stop', hash: 'd2a8cba495a5dafaf5c19ee6e2b3ec95', name: 'Time Manipulation' }
             ],
             'lesson3': [
-                { id: 'i_am_free', hash: 'e6b36e9c758ba306f3e128a6acd11f15', name: '#1' },
-                { id: 'header_fixer', hash: '6b458e3492e43f21c245634f29664057', name: '#2' },
-                { id: 'file_hackerit', hash: '3f613af792f5818b52f81a7d30abfdea', name: '#3' },
-                { id: 'exercise_4', hash: 'c4065e529d488963f0821c2a54b6ccd4', name: '#4' }
+                { id: 'file_1_jpg', hash: 'c17010e9b22f8c5a8e1e6fcc6cf03bd9', name: 'File 1' },
+                { id: 'file_2_png', hash: 'ab324ed5c0ebca7b6790d517d3e6093f', name: 'File 2' },
+                { id: 'file_3_gif', hash: '9158a88205eb76993108e250eb35018e', name: 'File 3' },
+                { id: 'file_4_pdf', hash: '46fb79c3a76a7da7a1f9e16da5459ab3', name: 'File 4' },
+                { id: 'file_5_zip', hash: '57d9c267043fed402f165b9a63c5ea40', name: 'File 5' },
+                { id: 'file_6_docx', hash: '16e7ce76d4ecb84e64863c4ad36a2625', name: 'File 6' },
+                { id: 'header_fixer', hash: '6b458e3492e43f21c245634f29664057', name: 'Exercise #2' },
+                { id: 'file_hackerit', hash: '3f613af792f5818b52f81a7d30abfdea', name: 'Exercise #3' }
             ],
             'lesson4': [
                 { id: 'intro_winner', hash: '87b779c1ae67de045fb014eda134baaf', name: 'num 3' }
@@ -627,7 +635,15 @@
             { threshold: 6, title: 'Hex Wizard', subtitle: 'You\'re unstoppable!' },
             { threshold: 7, title: 'CTF Champion', subtitle: 'You\'ve conquered the main challenges!' },
             { threshold: 8, title: 'Binary Master', subtitle: 'Main challenges completed!' },
-            { threshold: 9, title: 'Reverse Engineering Master', subtitle: 'All challenges completed! You\'re a legend!' }
+            { threshold: 9, title: 'File Analysis Expert', subtitle: 'You\'re a file format master!' },
+            { threshold: 10, title: 'Header Hacker', subtitle: 'You\'ve mastered file headers!' },
+            { threshold: 11, title: 'File Format Master', subtitle: 'You\'re unstoppable with files!' },
+            { threshold: 12, title: 'PNG Fixer', subtitle: 'You can fix any corrupted file!' },
+            { threshold: 13, title: 'HTML Hacker', subtitle: 'You\'ve mastered HTML manipulation!' },
+            { threshold: 14, title: 'JS Manipulator', subtitle: 'You can bend JavaScript to your will!' },
+            { threshold: 15, title: 'Time Controller', subtitle: 'You\'ve mastered time manipulation!' },
+            { threshold: 16, title: 'UI Hacker', subtitle: 'You can unlock any interface!' },
+            { threshold: 17, title: 'Reverse Engineering Master', subtitle: 'All challenges completed! You\'re a legend!' }
         ];
 
         // Load progress from localStorage
@@ -729,7 +745,7 @@
             // Enable/disable certificate button
             const certificateBtn = document.getElementById('certificateBtn');
             const userName = document.getElementById('userName').value.trim();
-            certificateBtn.disabled = mainCompleted < mainTotal || !userName;
+            certificateBtn.disabled = mainCompleted < mainTotal - 8 || !userName;
         }
 
         function createLessonCard(lessonKey, lessonName) {
@@ -759,8 +775,6 @@
                             ${progress[lessonKey][challenge.id] ? 'Completed' : 'Submit'}
                         </button>
                     </div>
-                    ${progress[lessonKey][challenge.id] ? 
-                        '<div class="success-message">✓ Challenge completed!</div>' : ''}
                 `).join('')}
             `;
             
@@ -788,18 +802,14 @@
                 button.disabled = true;
                 button.textContent = 'Completed';
                 
-                // Add success message
-                const successMsg = document.createElement('div');
-                successMsg.className = 'success-message';
-                successMsg.textContent = '✓ Challenge completed!';
-                input.parentNode.parentNode.appendChild(successMsg);
-                
                 updateProgress();
                 showMessage('Flag accepted! Challenge completed!', 'success');
             } else {
                 showMessage('Incorrect flag. Try again!', 'error');
             }
         }
+
+
 
         function showMessage(message, type) {
             const messageDiv = document.createElement('div');
@@ -854,9 +864,7 @@
                     });
                 });
                 
-                // Remove all success messages
-                const successMessages = document.querySelectorAll('.success-message');
-                successMessages.forEach(msg => msg.remove());
+                // Success messages are no longer created, so no need to remove them
                 
                 // Update progress display
                 updateProgress();

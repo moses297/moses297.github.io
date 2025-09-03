@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Extensions & Magic Numbers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #00ff88;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(10, 10, 10, 0.95);
+            border-radius: 15px;
+            box-shadow: 
+                0 0 50px rgba(0, 255, 136, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            color: #00ff88;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff88, #00bfff, #ff0080, #00ff88, transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.8;
+            color: #00bfff;
+        }
+
+        .search-container {
+            padding: 15px 25px;
+            background: rgba(15, 15, 35, 0.8);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 18px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            outline: none;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff88;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .search-box:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .search-box::placeholder {
+            color: rgba(0, 255, 136, 0.5);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 65vh;
+            background: rgba(5, 5, 15, 0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            color: #00ff88;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 1em;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateX(2px);
+            box-shadow: inset 3px 0 0 #00ff88;
+        }
+
+        .extension {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+            color: #ff0080;
+            background: rgba(255, 0, 128, 0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid rgba(255, 0, 128, 0.3);
+            font-size: 0.9em;
+        }
+
+        .magic-number {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 191, 255, 0.1);
+            color: #00bfff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            font-size: 0.9em;
+        }
+
+        .file-type {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 1em;
+        }
+
+        .description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .category-badge {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #000;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .image { background: linear-gradient(45deg, #ff0080, #ff4081); }
+        .audio { background: linear-gradient(45deg, #00bfff, #0099cc); }
+        .video { background: linear-gradient(45deg, #ff6b6b, #ff5252); }
+        .document { background: linear-gradient(45deg, #00ff88, #00cc6a); }
+        .archive { background: linear-gradient(45deg, #ffa726, #ff9800); }
+        .executable { background: linear-gradient(45deg, #ab47bc, #9c27b0); }
+        .database { background: linear-gradient(45deg, #26c6da, #00bcd4); }
+
+        .stats {
+            padding: 15px 25px;
+            background: rgba(15, 15, 35, 0.8);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00ff88, #00bfff);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #00cc6a, #0099cc);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+                font-size: 0.9em;
+            }
+
+            .extension, .magic-number {
+                font-size: 0.85em;
+                padding: 6px 10px;
+            }
+
+            .description {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 File Magic Numbers Reference</h1>
+            <p>A comprehensive guide to file extensions and their hexadecimal magic number headers</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by extension, file type, or magic number...">
+        </div>
+
+        <div class="table-container">
+            <table id="magicTable">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Extension</th>
+                        <th>Magic Number (Hex)</th>
+                        <th>File Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stats" id="stats">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const fileData = [
+            // Images
+            { category: 'image', ext: '.jpg/.jpeg', magic: 'FF D8 FF', text: 'ÿØÿ', type: 'JPEG Image', desc: 'Compressed image format, most common for photos' },
+            { category: 'image', ext: '.png', magic: '89 50 4E 47', text: '‰PNG', type: 'PNG Image', desc: 'Portable Network Graphics, supports transparency' },
+            { category: 'image', ext: '.gif', magic: '47 49 46 38', text: 'GIF8', type: 'GIF Image', desc: 'Graphics Interchange Format, supports animation' },
+            { category: 'image', ext: '.bmp', magic: '42 4D', text: 'BM', type: 'Bitmap Image', desc: 'Windows bitmap image format' },
+            { category: 'image', ext: '.tiff', magic: '49 49 2A 00', text: 'II*\\0', type: 'TIFF Image', desc: 'Tagged Image File Format (little-endian)' },
+            { category: 'image', ext: '.ico', magic: '00 00 01 00', text: '\\0\\0\\1\\0', type: 'Icon File', desc: 'Windows icon format' },
+            { category: 'image', ext: '.webp', magic: '52 49 46 46', text: 'RIFF', type: 'WebP Image', desc: 'Google\'s modern image format (RIFF container)' },
+            { category: 'image', ext: '.svg', magic: '3C 73 76 67', text: '<svg', type: 'SVG Image', desc: 'Scalable Vector Graphics (XML-based)' },
+
+            // Audio
+            { category: 'audio', ext: '.mp3', magic: 'FF FB', text: 'ÿû', type: 'MP3 Audio', desc: 'MPEG Layer 3 compressed audio' },
+            { category: 'audio', ext: '.wav', magic: '52 49 46 46', text: 'RIFF', type: 'WAV Audio', desc: 'Waveform audio file format (RIFF container)' },
+            { category: 'audio', ext: '.ogg', magic: '4F 67 67 53', text: 'OggS', type: 'Ogg Audio', desc: 'Open source audio format' },
+            { category: 'audio', ext: '.flac', magic: '66 4C 61 43', text: 'fLaC', type: 'FLAC Audio', desc: 'Free Lossless Audio Codec' },
+            { category: 'audio', ext: '.aac', magic: 'FF F1', text: 'ÿñ', type: 'AAC Audio', desc: 'Advanced Audio Coding' },
+            { category: 'audio', ext: '.m4a', magic: '00 00 00 20 66 74 79 70', text: '\\0\\0\\0 ftyp', type: 'M4A Audio', desc: 'MPEG-4 Audio container' },
+
+            // Video
+            { category: 'video', ext: '.mp4', magic: '00 00 00 18 66 74 79 70', text: '\\0\\0\\0\\x18ftyp', type: 'MP4 Video', desc: 'MPEG-4 video container' },
+            { category: 'video', ext: '.avi', magic: '52 49 46 46', text: 'RIFF', type: 'AVI Video', desc: 'Audio Video Interleave format (RIFF container)' },
+            { category: 'video', ext: '.mkv', magic: '1A 45 DF A3', text: '\\x1aEßÃ', type: 'Matroska Video', desc: 'Open standard multimedia container (EBML)' },
+            { category: 'video', ext: '.wmv', magic: '30 26 B2 75', text: '0&²u', type: 'WMV Video', desc: 'Windows Media Video (ASF container)' },
+            { category: 'video', ext: '.mov', magic: '00 00 00 14 66 74 79 70', text: '\\0\\0\\0\\x14ftyp', type: 'QuickTime Video', desc: 'Apple QuickTime movie format' },
+            { category: 'video', ext: '.webm', magic: '1A 45 DF A3', text: '\\x1aEßÃ', type: 'WebM Video', desc: 'Web-optimized video format (Matroska-based)' },
+
+            // Documents
+            { category: 'document', ext: '.pdf', magic: '25 50 44 46', text: '%PDF', type: 'PDF Document', desc: 'Portable Document Format' },
+            { category: 'document', ext: '.doc', magic: 'D0 CF 11 E0', text: 'Ð?\\x11à', type: 'Word Document', desc: 'Microsoft Word 97-2003 document (OLE2)' },
+            { category: 'document', ext: '.docx', magic: '50 4B 03 04', text: 'PK\\x03\\x04', type: 'Word Document', desc: 'Microsoft Word 2007+ document (ZIP-based)' },
+            { category: 'document', ext: '.xls', magic: 'D0 CF 11 E0', text: 'Ð?\\x11à', type: 'Excel Spreadsheet', desc: 'Microsoft Excel 97-2003 spreadsheet (OLE2)' },
+            { category: 'document', ext: '.xlsx', magic: '50 4B 03 04', text: 'PK\\x03\\x04', type: 'Excel Spreadsheet', desc: 'Microsoft Excel 2007+ spreadsheet (ZIP-based)' },
+            { category: 'document', ext: '.ppt', magic: 'D0 CF 11 E0', text: 'Ð?\\x11à', type: 'PowerPoint', desc: 'Microsoft PowerPoint 97-2003 presentation (OLE2)' },
+            { category: 'document', ext: '.pptx', magic: '50 4B 03 04', text: 'PK\\x03\\x04', type: 'PowerPoint', desc: 'Microsoft PowerPoint 2007+ presentation (ZIP-based)' },
+            { category: 'document', ext: '.rtf', magic: '7B 5C 72 74 66', text: '{\\rtf', type: 'Rich Text Format', desc: 'Rich Text Format document' },
+            { category: 'document', ext: '.odt', magic: '50 4B 03 04', text: 'PK\\x03\\x04', type: 'OpenDocument Text', desc: 'OpenDocument text document (ZIP-based)' },
+
+            // Archives
+            { category: 'archive', ext: '.zip', magic: '50 4B 03 04', text: 'PK\\x03\\x04', type: 'ZIP Archive', desc: 'Compressed archive format' },
+            { category: 'archive', ext: '.rar', magic: '52 61 72 21', text: 'Rar!', type: 'RAR Archive', desc: 'WinRAR compressed archive' },
+            { category: 'archive', ext: '.7z', magic: '37 7A BC AF', text: '7z¼¯', type: '7-Zip Archive', desc: '7-Zip compressed archive' },
+            { category: 'archive', ext: '.tar', magic: '75 73 74 61 72', text: 'ustar', type: 'TAR Archive', desc: 'Tape archive format (at offset 257)' },
+            { category: 'archive', ext: '.gz', magic: '1F 8B', text: '\\x1f\\x8b', type: 'Gzip Archive', desc: 'GNU zip compressed file' },
+            { category: 'archive', ext: '.bz2', magic: '42 5A 68', text: 'BZh', type: 'Bzip2 Archive', desc: 'Bzip2 compressed file' },
+
+            // Executables
+            { category: 'executable', ext: '.exe', magic: '4D 5A', text: 'MZ', type: 'Windows Executable', desc: 'Windows executable program (PE format)' },
+            { category: 'executable', ext: '.dll', magic: '4D 5A', text: 'MZ', type: 'Dynamic Link Library', desc: 'Windows dynamic link library (PE format)' },
+            { category: 'executable', ext: '.msi', magic: 'D0 CF 11 E0', text: 'Ð?\\x11à', type: 'Windows Installer', desc: 'Microsoft installer package (OLE2)' },
+            { category: 'executable', ext: '.class', magic: 'CA FE BA BE', text: 'Êþº¾', type: 'Java Class', desc: 'Compiled Java bytecode' },
+            { category: 'executable', ext: '.dex', magic: '64 65 78 0A', text: 'dex\\n', type: 'Dalvik Executable', desc: 'Android Dalvik executable' },
+
+            // Database
+            { category: 'database', ext: '.db/.sqlite', magic: '53 51 4C 69 74 65 20 66', text: 'SQLite f', type: 'SQLite Database', desc: 'SQLite database file' },
+            { category: 'database', ext: '.mdb', magic: '00 01 00 00 53 74 61 6E', text: '\\0\\x01\\0\\0Stan', type: 'Access Database', desc: 'Microsoft Access database' },
+            { category: 'database', ext: '.dbf', magic: '03 00 00 00', text: '\\x03\\0\\0\\0', type: 'dBase Database', desc: 'dBase database file' }
+        ];
+
+        function createTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            fileData.forEach(file => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="category-badge ${file.category}">${file.category.toUpperCase()}</span></td>
+                    <td><span class="extension">${file.ext}</span></td>
+                    <td><span class="magic-number">${file.magic}</span></td>
+                    <td><span class="file-type">${file.type}</span></td>
+                    <td><span class="description">${file.desc}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createStats() {
+            const categories = [...new Set(fileData.map(f => f.category))];
+            const totalFiles = fileData.length;
+            
+            const statsContainer = document.getElementById('stats');
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${totalFiles}</div>
+                    <div class="stat-label">Total File Types</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${categories.length}</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${fileData.filter(f => f.category === 'image').length}</div>
+                    <div class="stat-label">Image Formats</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${fileData.filter(f => f.category === 'document').length}</div>
+                    <div class="stat-label">Document Types</div>
+                </div>
+            `;
+        }
+
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+            const tbody = document.getElementById('tableBody');
+
+            searchBox.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = tbody.getElementsByTagName('tr');
+
+                Array.from(rows).forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            createTable();
+            createStats();
+            setupSearch();
+        });
+    </script>
+</body>
+</html>

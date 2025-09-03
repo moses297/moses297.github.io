@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: JavaScript Tricks - Hackeriot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00ccff;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid #00ccff;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #00ccff;
+            color: #1a1a2e;
+        }
+
+        .trick-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .trick-title {
+            color: #00ccff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trick-description {
+            color: #b0b0b0;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .trick-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Trick 1 - Blurry Text */
+        .blurry-text {
+            font-size: 1.2rem;
+            color: #ffffff;
+            filter: blur(8px);
+            user-select: none;
+            transition: filter 0.3s ease;
+        }
+
+        .blurry-text:hover {
+            filter: blur(4px);
+        }
+
+        /* Trick 2 - Disabled Button */
+        .disabled-button {
+            background: #666;
+            color: #999;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: not-allowed;
+            transition: all 0.3s ease;
+        }
+
+        .disabled-button:enabled {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            cursor: pointer;
+        }
+
+        .disabled-button:enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        /* Trick 3 - Timer */
+        .timer-container {
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .timer-btn:disabled {
+            background: #666;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .flag-reveal {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .flag-reveal.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .flag-text {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Lesson 2</a>
+        
+        <header class="header">
+            <h1>🎯 JavaScript Tricks Challenge</h1>
+            <p>Master these three JavaScript manipulation techniques to uncover the hidden flags!</p>
+        </header>
+
+        <!-- Trick 1: Blurry Text -->
+        <div class="trick-section">
+            <div class="trick-title">
+                <span>🔍</span>
+                Trick 1: Blurry Vision
+            </div>
+            <div class="trick-description">
+                This text appears blurry, but there's a way to see what's behind it. Use your browser's developer tools to inspect the element and reveal the hidden flag!
+            </div>
+            <div class="trick-content">
+                <div class="blurry-text" id="blurryText">
+                    flag{blurry_vision}
+                </div>
+                <div class="hint">
+                    💡 Hint: Right-click on the blurry text and select "Inspect Element" or press F12 to open developer tools
+                </div>
+            </div>
+        </div>
+
+        <!-- Trick 2: Disabled Button -->
+        <div class="trick-section">
+            <div class="trick-title">
+                <span>🔓</span>
+                Trick 2: Button Unlock
+            </div>
+            <div class="trick-description">
+                This button is disabled and won't work when clicked. Can you find a way to enable it using the developer tools?
+            </div>
+            <div class="trick-content">
+                <button class="disabled-button" id="disabledButton" disabled onclick="revealFlag2()">
+                    Click me to reveal the flag!
+                </button>
+                <div class="hint">
+                    💡 Hint: Inspect the button element and look for the "disabled" attribute. Try removing it!
+                </div>
+                <div class="flag-reveal" id="flag2Reveal">
+                    <div class="flag-text">flag{button_unlocked}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trick 3: Timer Manipulation -->
+        <div class="trick-section">
+            <div class="trick-title">
+                <span>⏰</span>
+                Trick 3: Time Manipulation
+            </div>
+            <div class="trick-description">
+                This timer is set to 10 minutes, but that's way too long to wait! Can you find a way to speed up time using the developer tools?
+            </div>
+            <div class="trick-content">
+                <div class="timer-container">
+                    <div class="timer-display" id="timerDisplay">10:00</div>
+                    <div class="timer-controls">
+                        <button class="timer-btn" id="startBtn" onclick="startTimer()">Start Timer</button>
+                        <button class="timer-btn" id="resetBtn" onclick="resetTimer()">Reset Timer</button>
+                    </div>
+                    <div class="hint">
+                        💡 Hint: Inspect the timer element and look for the time value. Try changing it to a smaller number before starting!
+                    </div>
+                    <div class="flag-reveal" id="flag3Reveal">
+                        <div class="flag-text">flag{making_time_stop}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Trick 2: Button functionality
+        function revealFlag2() {
+            const flagReveal = document.getElementById('flag2Reveal');
+            flagReveal.classList.add('show');
+        }
+
+        // Trick 3: Timer functionality
+        let timerInterval;
+        let timeLeft = 600; // 10 minutes in seconds
+        let isRunning = false;
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('resetBtn').disabled = false;
+
+            // Get the current display value (in case user modified it)
+            const displayText = document.getElementById('timerDisplay').textContent;
+            const [minutes, seconds] = displayText.split(':').map(Number);
+            timeLeft = minutes * 60 + seconds;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('resetBtn').disabled = true;
+                    revealFlag3();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = 600; // Reset to 10 minutes
+            updateTimerDisplay();
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('resetBtn').disabled = true;
+            document.getElementById('flag3Reveal').classList.remove('show');
+        }
+
+        function revealFlag3() {
+            const flagReveal = document.getElementById('flag3Reveal');
+            flagReveal.classList.add('show');
+        }
+
+        // Initialize timer display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
