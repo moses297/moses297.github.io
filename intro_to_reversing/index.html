@@ -265,6 +265,77 @@
                 text-shadow: 0 0 30px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 204, 255, 0.3);
             }
         }
+
+        /* CTF Websites Section */
+        .ctf-websites-section {
+            margin: 60px 0;
+            padding: 40px 0;
+        }
+
+        .ctf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .ctf-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .ctf-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .ctf-title {
+            color: #00ccff;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .ctf-description {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .ctf-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #1a1a2e;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .ctf-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 255, 136, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .ctf-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .ctf-card {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -274,6 +345,8 @@
             <p class="subtitle">Introduction To Reverse Engineering Workshop</p>
             <div class="workshop-info">
                 <p>Master the fundamentals of reverse engineering through hands-on exercises and real-world applications</p>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #00ccff;">by Moshe Siman Tov Bustan</p>
+                <p style="margin-top: 5px; font-size: 0.9rem; color: #00ff88;">Hackeriot 2025</p>
             </div>
         </header>
 
@@ -316,51 +389,6 @@
                 </div>
             </div>
         </section>
-
-        <section class="resources-section">
-            <h2 class="section-title">Tools, Links & Guides</h2>
-            <div class="resources-grid">
-                <div class="resource-card">
-                    <h3 class="resource-title">
-                        <span class="icon">🔧</span>
-                        Essential Tools
-                    </h3>
-                    <div class="resource-links">
-                        <a href="tools/hex-editors" class="resource-link">Hex Editors</a>
-                        <a href="tools/disassemblers" class="resource-link">Disassemblers</a>
-                        <a href="tools/debuggers" class="resource-link">Debuggers</a>
-                        <a href="tools/network-tools" class="resource-link">Network Analysis</a>
-                    </div>
-                </div>
-
-                <div class="resource-card">
-                    <h3 class="resource-title">
-                        <span class="icon">📚</span>
-                        Learning Resources
-                    </h3>
-                    <div class="resource-links">
-                        <a href="guides/getting-started" class="resource-link">Getting Started Guide</a>
-                        <a href="guides/cheat-sheets" class="resource-link">Cheat Sheets</a>
-                        <a href="guides/reference" class="resource-link">Reference Materials</a>
-                        <a href="guides/advanced" class="resource-link">Advanced Techniques</a>
-                    </div>
-                </div>
-
-                <div class="resource-card">
-                    <h3 class="resource-title">
-                        <span class="icon">🌐</span>
-                        External Links
-                    </h3>
-                    <div class="resource-links">
-                        <a href="links/documentation" class="resource-link">Official Documentation</a>
-                        <a href="links/communities" class="resource-link">RE Communities</a>
-                        <a href="links/challenges" class="resource-link">Practice Challenges</a>
-                        <a href="links/videos" class="resource-link">Video Tutorials</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <div class="progress-tracker">
             <h3 class="resource-title">
                 <span class="icon">📊</span>
@@ -369,9 +397,103 @@
             <p style="margin: 20px 0; color: #b0b0b0;">Monitor your completion status and compete with other participants</p>
             <a href="ctf-progress.html" class="progress-link">CTF Progress Tracking</a>
         </div>
+       
+        <section class="resources-section">
+            <h2 class="section-title">Tools, Links & Guides</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">🔧</span>
+                        Online Tools
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://godbolt.org/" class="resource-link" target="_blank">Binary to Assembly - Godbolt</a>
+                        <a href="https://www.checkfiletype.com/" class="resource-link" target="_blank">File Header Check</a>
+                        <a href="https://hexed.it/" class="resource-link" target="_blank">Hex Editor</a>
+                        <a href="https://onecompiler.com/c" class="resource-link" target="_blank">C Compiler</a>
+                        <a href="https://dogbolt.org/" class="resource-link" target="_blank">Online Decompiler</a>
+                        <a href="https://www.decompiler.com/" class="resource-link" target="_blank">Android Decompiler</a>
+                    </div>
+                </div>
 
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">📝</span>
+                        Text Editors
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://www.sublimetext.com/" class="resource-link" target="_blank">Sublime Text</a>
+                        <a href="https://notepad-plus-plus.org/" class="resource-link" target="_blank">Notepad++</a>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <h3 class="resource-title">
+                        <span class="icon">🛠️</span>
+                        Decompilers & Analysis Tools
+                    </h3>
+                    <div class="resource-links">
+                        <a href="https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_11.3.2_build" class="resource-link" target="_blank">Ghidra Decompiler</a>
+                        <a href="https://hex-rays.com/ida-free/" class="resource-link" target="_blank">IDA Decompiler</a>
+                        <a href="https://github.com/skylot/jadx" class="resource-link" target="_blank">JADX Decompiler</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+      
+
+        <section class="ctf-websites-section">
+            <h2 class="section-title">🚀 Continue Learning</h2>
+            <p style="text-align: center; color: #b0b0b0; margin-bottom: 30px;">Ready for more challenges? Explore these CTF platforms to further develop your reverse engineering skills:</p>
+            
+            <div class="ctf-grid">
+                <div class="ctf-card">
+                    <h3 class="ctf-title">HackTheBox</h3>
+                    <p class="ctf-description">Premium CTF platform with realistic penetration testing scenarios</p>
+                    <a href="https://www.hackthebox.com/" class="ctf-link" target="_blank">Visit HackTheBox</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">Root-Me</h3>
+                    <p class="ctf-description">French CTF platform with diverse challenges and learning paths</p>
+                    <a href="https://www.root-me.org/" class="ctf-link" target="_blank">Visit Root-Me</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">TryHackMe</h3>
+                    <p class="ctf-description">Interactive learning platform with guided CTF challenges</p>
+                    <a href="https://tryhackme.com/" class="ctf-link" target="_blank">Visit TryHackMe</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">Pwnable.kr</h3>
+                    <p class="ctf-description">Korean CTF platform with system exploitation challenges</p>
+                    <a href="http://pwnable.kr/" class="ctf-link" target="_blank">Visit Pwnable.kr</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">CrackMe.one</h3>
+                    <p class="ctf-description">Reverse engineering challenges and crackme programs</p>
+                    <a href="https://crackmes.one/" class="ctf-link" target="_blank">Visit CrackMe.one</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">CrackMy.app</h3>
+                    <p class="ctf-description">Mobile app reverse engineering challenges</p>
+                    <a href="https://crackmy.app/" class="ctf-link" target="_blank">Visit CrackMy.app</a>
+                </div>
+
+                <div class="ctf-card">
+                    <h3 class="ctf-title">Challenges.re</h3>
+                    <p class="ctf-description">Reverse engineering challenges and learning resources</p>
+                    <a href="https://challenges.re/" class="ctf-link" target="_blank">Visit Challenges.re</a>
+                </div>
+            </div>
+        </section>
+       
         <footer class="footer">
-            <p>&copy; 2025 Hackeriot - Introduction To Reverse Engineering Workshop</p>
+            <p>&copy; Moshe Siman Tov Bustan - Hackeriot 2025 Introduction To Reverse Engineering Workshop</p>
             <p>Happy Hacking! 🚀</p>
         </footer>
     </div>
