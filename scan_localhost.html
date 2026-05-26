@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MCP/Local Port Auditor</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .result { padding: 10px; margin: 5px 0; border: 1px solid #ccc; }
+        .open { background-color: #ffcccc; color: #cc0000; }
+        .closed { background-color: #ccffcc; color: #006600; }
+    </style>
+</head>
+<body>
+    <h2>Local Service Auditor</h2>
+    <p>Checking for potentially exposed MCP/Local services on common ports:</p>
+    <div id="results"></div>
+
+    <script>
+        const ports = [3000, 8000, 8080, 8888, 5173]; // Common MCP/Dev ports
+        const resultsDiv = document.getElementById('results');
+
+        async function checkPort(port) {
+            const start = Date.now();
+            try {
+                // Fetch attempts to connect to the port
+                // Note: This relies on the "Connection Refused" vs "Timeout" timing
+                await fetch(`http://127.0.0.1:${port}`, { mode: 'no-cors', signal: AbortSignal.timeout(1000) });
+                return "Open/Responsive";
+            } catch (err) {
+                return (Date.now() - start < 1000) ? "Closed/Refused" : "Timeout/Filtered";
+            }
+        }
+
+        async function runScan() {
+            for (let port of ports) {
+                const status = await checkPort(port);
+                const div = document.createElement('div');
+                div.className = `result ${status === 'Open/Responsive' ? 'open' : 'closed'}`;
+                div.innerText = `Port ${port}: ${status}`;
+                resultsDiv.appendChild(div);
+            }
+        }
+        runScan();
+    </script>
+</body>
+</html>
